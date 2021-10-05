@@ -1,0 +1,13 @@
+<launch>
+
+  <arg name="debug_directory" value="$(env HELLO_FLEET_PATH)/debug/"/>
+  <!-- GRASP TOOL -->
+  <node name="grasp_tool" pkg="grasp_tool" type="grasp_tool.py" output="screen">
+    <param name="debug_directory" type="string" value="$(arg debug_directory)"/>
+  </node>
+  <!-- -->
+
+  <!-- KEYBOARD TELEOP -->
+  <node name="keyboard_teleop" pkg="stretch_core" type="keyboard_teleop" output="screen" args='--mapping_on --grasp_object_on'/>
+  <!-- -->
+</launch>
