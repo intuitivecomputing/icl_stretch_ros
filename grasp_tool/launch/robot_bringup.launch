@@ -11,7 +11,7 @@
   <!-- -->
 
   <!-- ARUCO MARKER DETECTOR -->
-  <include file="$(find stretch_core)/launch/stretch_aruco.launch"></include>
+  <include file="$(find sp_perception)/launch/stretch_aruco.launch"></include>
   <!-- -->
 
   <!-- STRETCH DRIVER -->
