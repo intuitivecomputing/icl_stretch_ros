@@ -2,19 +2,26 @@ cmake_minimum_required(VERSION 3.0.2)
 project(sp_perception)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++14)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
+set( ROS_CXX_DEPENDENCIES
   roscpp
   rospy
+  nodelet
   std_msgs
-)
+  sensor_msgs
+  geometry_msgs
+  message_filters
+  pcl_ros
+  pcl_conversions)
 
+find_package(catkin REQUIRED COMPONENTS${ROS_CXX_DEPENDENCIES})
+find_package(PCL REQUIRED QUIET)
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
+find_package(Boost REQUIRED COMPONENTS system)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -103,9 +110,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES sp_perception
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+ INCLUDE_DIRS include
+ LIBRARIES sp_perception
+ CATKIN_DEPENDS ${ROS_CXX_DEPENDENCIES} 
 #  DEPENDS system_lib
 )
 
@@ -115,10 +122,7 @@ catkin_package(
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+include_directories(include ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
