@@ -1,0 +1,13 @@
+<launch>
+  <!-- REALSENSE D435i -->
+  <include file="$(find stretch_core)/launch/d435i_high_resolution.launch"></include>
+  <node name="d435i_configure" pkg="stretch_core" type="d435i_configure" output="screen">
+    <!--<param name="initial_mode" type="string" value="Default"/>-->
+    <param name="initial_mode" type="string" value="High Accuracy"/>
+  </node>
+  <!-- -->
+  <node name="image_view" pkg="image_view" type="image_view" respawn="false" output="screen">
+    <remap from="image" to="/camera/color/image_raw"/>
+    <param name="autosize" value="true" />
+  </node>
+</launch>
