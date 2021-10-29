@@ -19,11 +19,11 @@ namespace dynamixel_workbench_msgs
       _dynamixel_state_type * dynamixel_state;
 
     DynamixelStateList():
-      dynamixel_state_length(0), dynamixel_state(NULL)
+      dynamixel_state_length(0), st_dynamixel_state(), dynamixel_state(nullptr)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       *(outbuffer + offset + 0) = (this->dynamixel_state_length >> (8 * 0)) & 0xFF;
@@ -37,7 +37,7 @@ namespace dynamixel_workbench_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       uint32_t dynamixel_state_lengthT = ((uint32_t) (*(inbuffer + offset))); 
@@ -55,8 +55,8 @@ namespace dynamixel_workbench_msgs
      return offset;
     }
 
-    const char * getType(){ return "dynamixel_workbench_msgs/DynamixelStateList"; };
-    const char * getMD5(){ return "52c1af7cbc10f50d2e78a86519b081ee"; };
+    virtual const char * getType() override { return "dynamixel_workbench_msgs/DynamixelStateList"; };
+    virtual const char * getMD5() override { return "52c1af7cbc10f50d2e78a86519b081ee"; };
 
   };
 

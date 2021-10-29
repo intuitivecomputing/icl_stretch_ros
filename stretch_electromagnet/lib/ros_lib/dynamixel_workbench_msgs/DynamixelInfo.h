@@ -30,7 +30,7 @@ namespace dynamixel_workbench_msgs
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->load_info.serialize(outbuffer + offset);
@@ -47,7 +47,7 @@ namespace dynamixel_workbench_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->load_info.deserialize(inbuffer + offset);
@@ -68,8 +68,8 @@ namespace dynamixel_workbench_msgs
      return offset;
     }
 
-    const char * getType(){ return "dynamixel_workbench_msgs/DynamixelInfo"; };
-    const char * getMD5(){ return "8c02a7626d88db402a8af7bc5e0880d4"; };
+    virtual const char * getType() override { return "dynamixel_workbench_msgs/DynamixelInfo"; };
+    virtual const char * getMD5() override { return "8c02a7626d88db402a8af7bc5e0880d4"; };
 
   };
 

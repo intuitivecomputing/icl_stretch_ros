@@ -30,7 +30,7 @@ static const char DYNAMIXELCOMMAND[] = "dynamixel_workbench_msgs/DynamixelComman
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       uint32_t length_command = strlen(this->command);
@@ -58,7 +58,7 @@ static const char DYNAMIXELCOMMAND[] = "dynamixel_workbench_msgs/DynamixelComman
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       uint32_t length_command;
@@ -95,8 +95,8 @@ static const char DYNAMIXELCOMMAND[] = "dynamixel_workbench_msgs/DynamixelComman
      return offset;
     }
 
-    const char * getType(){ return DYNAMIXELCOMMAND; };
-    const char * getMD5(){ return "567da0de54717bf69d417bbe8d582ee9"; };
+    virtual const char * getType() override { return DYNAMIXELCOMMAND; };
+    virtual const char * getMD5() override { return "567da0de54717bf69d417bbe8d582ee9"; };
 
   };
 
@@ -111,7 +111,7 @@ static const char DYNAMIXELCOMMAND[] = "dynamixel_workbench_msgs/DynamixelComman
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       union {
@@ -124,7 +124,7 @@ static const char DYNAMIXELCOMMAND[] = "dynamixel_workbench_msgs/DynamixelComman
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       union {
@@ -138,8 +138,8 @@ static const char DYNAMIXELCOMMAND[] = "dynamixel_workbench_msgs/DynamixelComman
      return offset;
     }
 
-    const char * getType(){ return DYNAMIXELCOMMAND; };
-    const char * getMD5(){ return "f12f56e0367ef7d42085bd5f9c478576"; };
+    virtual const char * getType() override { return DYNAMIXELCOMMAND; };
+    virtual const char * getMD5() override { return "f12f56e0367ef7d42085bd5f9c478576"; };
 
   };
 

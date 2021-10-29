@@ -19,20 +19,20 @@ static const char GETDYNAMIXELINFO[] = "dynamixel_workbench_msgs/GetDynamixelInf
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
      return offset;
     }
 
-    const char * getType(){ return GETDYNAMIXELINFO; };
-    const char * getMD5(){ return "d41d8cd98f00b204e9800998ecf8427e"; };
+    virtual const char * getType() override { return GETDYNAMIXELINFO; };
+    virtual const char * getMD5() override { return "d41d8cd98f00b204e9800998ecf8427e"; };
 
   };
 
@@ -47,22 +47,22 @@ static const char GETDYNAMIXELINFO[] = "dynamixel_workbench_msgs/GetDynamixelInf
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->dynamixel_info.serialize(outbuffer + offset);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->dynamixel_info.deserialize(inbuffer + offset);
      return offset;
     }
 
-    const char * getType(){ return GETDYNAMIXELINFO; };
-    const char * getMD5(){ return "5075be00278efc6e6ba91f48b43afb53"; };
+    virtual const char * getType() override { return GETDYNAMIXELINFO; };
+    virtual const char * getMD5() override { return "5075be00278efc6e6ba91f48b43afb53"; };
 
   };
 

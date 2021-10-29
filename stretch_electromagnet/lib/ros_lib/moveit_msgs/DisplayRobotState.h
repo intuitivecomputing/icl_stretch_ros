@@ -20,14 +20,17 @@ namespace moveit_msgs
       typedef moveit_msgs::ObjectColor _highlight_links_type;
       _highlight_links_type st_highlight_links;
       _highlight_links_type * highlight_links;
+      typedef bool _hide_type;
+      _hide_type hide;
 
     DisplayRobotState():
       state(),
-      highlight_links_length(0), highlight_links(NULL)
+      highlight_links_length(0), st_highlight_links(), highlight_links(nullptr),
+      hide(0)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->state.serialize(outbuffer + offset);
@@ -39,10 +42,17 @@ namespace moveit_msgs
       for( uint32_t i = 0; i < highlight_links_length; i++){
       offset += this->highlight_links[i].serialize(outbuffer + offset);
       }
+      union {
+        bool real;
+        uint8_t base;
+      } u_hide;
+      u_hide.real = this->hide;
+      *(outbuffer + offset + 0) = (u_hide.base >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->hide);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->state.deserialize(inbuffer + offset);
@@ -58,11 +68,19 @@ namespace moveit_msgs
       offset += this->st_highlight_links.deserialize(inbuffer + offset);
         memcpy( &(this->highlight_links[i]), &(this->st_highlight_links), sizeof(moveit_msgs::ObjectColor));
       }
+      union {
+        bool real;
+        uint8_t base;
+      } u_hide;
+      u_hide.base = 0;
+      u_hide.base |= ((uint8_t) (*(inbuffer + offset + 0))) << (8 * 0);
+      this->hide = u_hide.real;
+      offset += sizeof(this->hide);
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/DisplayRobotState"; };
-    const char * getMD5(){ return "6a3bab3a33a8c47aee24481a455a21aa"; };
+    virtual const char * getType() override { return "moveit_msgs/DisplayRobotState"; };
+    virtual const char * getMD5() override { return "61c4e677a6fbbc83f0d5d9df2be85e3c"; };
 
   };
 

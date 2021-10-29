@@ -119,7 +119,7 @@ namespace dynamixel_workbench_msgs
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       *(outbuffer + offset + 0) = (this->Model_Number >> (8 * 0)) & 0xFF;
@@ -205,7 +205,7 @@ namespace dynamixel_workbench_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       this->Model_Number =  ((uint16_t) (*(inbuffer + offset)));
@@ -291,8 +291,8 @@ namespace dynamixel_workbench_msgs
      return offset;
     }
 
-    const char * getType(){ return "dynamixel_workbench_msgs/EX"; };
-    const char * getMD5(){ return "49929b8e4c95abff8543ee349bf2dc0b"; };
+    virtual const char * getType() override { return "dynamixel_workbench_msgs/EX"; };
+    virtual const char * getMD5() override { return "49929b8e4c95abff8543ee349bf2dc0b"; };
 
   };
 

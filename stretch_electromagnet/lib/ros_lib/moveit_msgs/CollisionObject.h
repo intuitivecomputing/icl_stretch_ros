@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include "ros/msg.h"
 #include "std_msgs/Header.h"
+#include "geometry_msgs/Pose.h"
 #include "object_recognition_msgs/ObjectType.h"
 #include "shape_msgs/SolidPrimitive.h"
-#include "geometry_msgs/Pose.h"
 #include "shape_msgs/Mesh.h"
 #include "shape_msgs/Plane.h"
 
@@ -20,6 +20,8 @@ namespace moveit_msgs
     public:
       typedef std_msgs::Header _header_type;
       _header_type header;
+      typedef geometry_msgs::Pose _pose_type;
+      _pose_type pose;
       typedef const char* _id_type;
       _id_type id;
       typedef object_recognition_msgs::ObjectType _type_type;
@@ -48,6 +50,14 @@ namespace moveit_msgs
       typedef geometry_msgs::Pose _plane_poses_type;
       _plane_poses_type st_plane_poses;
       _plane_poses_type * plane_poses;
+      uint32_t subframe_names_length;
+      typedef char* _subframe_names_type;
+      _subframe_names_type st_subframe_names;
+      _subframe_names_type * subframe_names;
+      uint32_t subframe_poses_length;
+      typedef geometry_msgs::Pose _subframe_poses_type;
+      _subframe_poses_type st_subframe_poses;
+      _subframe_poses_type * subframe_poses;
       typedef int8_t _operation_type;
       _operation_type operation;
       enum { ADD = 0 };
@@ -57,22 +67,26 @@ namespace moveit_msgs
 
     CollisionObject():
       header(),
+      pose(),
       id(""),
       type(),
-      primitives_length(0), primitives(NULL),
-      primitive_poses_length(0), primitive_poses(NULL),
-      meshes_length(0), meshes(NULL),
-      mesh_poses_length(0), mesh_poses(NULL),
-      planes_length(0), planes(NULL),
-      plane_poses_length(0), plane_poses(NULL),
+      primitives_length(0), st_primitives(), primitives(nullptr),
+      primitive_poses_length(0), st_primitive_poses(), primitive_poses(nullptr),
+      meshes_length(0), st_meshes(), meshes(nullptr),
+      mesh_poses_length(0), st_mesh_poses(), mesh_poses(nullptr),
+      planes_length(0), st_planes(), planes(nullptr),
+      plane_poses_length(0), st_plane_poses(), plane_poses(nullptr),
+      subframe_names_length(0), st_subframe_names(), subframe_names(nullptr),
+      subframe_poses_length(0), st_subframe_poses(), subframe_poses(nullptr),
       operation(0)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
+      offset += this->pose.serialize(outbuffer + offset);
       uint32_t length_id = strlen(this->id);
       varToArr(outbuffer + offset, length_id);
       offset += 4;
@@ -127,6 +141,26 @@ namespace moveit_msgs
       for( uint32_t i = 0; i < plane_poses_length; i++){
       offset += this->plane_poses[i].serialize(outbuffer + offset);
       }
+      *(outbuffer + offset + 0) = (this->subframe_names_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->subframe_names_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->subframe_names_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->subframe_names_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->subframe_names_length);
+      for( uint32_t i = 0; i < subframe_names_length; i++){
+      uint32_t length_subframe_namesi = strlen(this->subframe_names[i]);
+      varToArr(outbuffer + offset, length_subframe_namesi);
+      offset += 4;
+      memcpy(outbuffer + offset, this->subframe_names[i], length_subframe_namesi);
+      offset += length_subframe_namesi;
+      }
+      *(outbuffer + offset + 0) = (this->subframe_poses_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->subframe_poses_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->subframe_poses_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->subframe_poses_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->subframe_poses_length);
+      for( uint32_t i = 0; i < subframe_poses_length; i++){
+      offset += this->subframe_poses[i].serialize(outbuffer + offset);
+      }
       union {
         int8_t real;
         uint8_t base;
@@ -137,10 +171,11 @@ namespace moveit_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
+      offset += this->pose.deserialize(inbuffer + offset);
       uint32_t length_id;
       arrToVar(length_id, (inbuffer + offset));
       offset += 4;
@@ -223,6 +258,38 @@ namespace moveit_msgs
       offset += this->st_plane_poses.deserialize(inbuffer + offset);
         memcpy( &(this->plane_poses[i]), &(this->st_plane_poses), sizeof(geometry_msgs::Pose));
       }
+      uint32_t subframe_names_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      subframe_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      subframe_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      subframe_names_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->subframe_names_length);
+      if(subframe_names_lengthT > subframe_names_length)
+        this->subframe_names = (char**)realloc(this->subframe_names, subframe_names_lengthT * sizeof(char*));
+      subframe_names_length = subframe_names_lengthT;
+      for( uint32_t i = 0; i < subframe_names_length; i++){
+      uint32_t length_st_subframe_names;
+      arrToVar(length_st_subframe_names, (inbuffer + offset));
+      offset += 4;
+      for(unsigned int k= offset; k< offset+length_st_subframe_names; ++k){
+          inbuffer[k-1]=inbuffer[k];
+      }
+      inbuffer[offset+length_st_subframe_names-1]=0;
+      this->st_subframe_names = (char *)(inbuffer + offset-1);
+      offset += length_st_subframe_names;
+        memcpy( &(this->subframe_names[i]), &(this->st_subframe_names), sizeof(char*));
+      }
+      uint32_t subframe_poses_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      subframe_poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      subframe_poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      subframe_poses_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->subframe_poses_length);
+      if(subframe_poses_lengthT > subframe_poses_length)
+        this->subframe_poses = (geometry_msgs::Pose*)realloc(this->subframe_poses, subframe_poses_lengthT * sizeof(geometry_msgs::Pose));
+      subframe_poses_length = subframe_poses_lengthT;
+      for( uint32_t i = 0; i < subframe_poses_length; i++){
+      offset += this->st_subframe_poses.deserialize(inbuffer + offset);
+        memcpy( &(this->subframe_poses[i]), &(this->st_subframe_poses), sizeof(geometry_msgs::Pose));
+      }
       union {
         int8_t real;
         uint8_t base;
@@ -234,8 +301,8 @@ namespace moveit_msgs
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/CollisionObject"; };
-    const char * getMD5(){ return "568a161b26dc46c54a5a07621ce82cf3"; };
+    virtual const char * getType() override { return "moveit_msgs/CollisionObject"; };
+    virtual const char * getMD5() override { return "dbba710596087da521c07564160dfccb"; };
 
   };
 

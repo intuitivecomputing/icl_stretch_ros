@@ -26,7 +26,7 @@ namespace dynamixel_workbench_msgs
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       uint32_t length_device_name = strlen(this->device_name);
@@ -56,7 +56,7 @@ namespace dynamixel_workbench_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       uint32_t length_device_name;
@@ -91,8 +91,8 @@ namespace dynamixel_workbench_msgs
      return offset;
     }
 
-    const char * getType(){ return "dynamixel_workbench_msgs/DynamixelLoadInfo"; };
-    const char * getMD5(){ return "af24d77e0b8329be8d17a782ba80f5e2"; };
+    virtual const char * getType() override { return "dynamixel_workbench_msgs/DynamixelLoadInfo"; };
+    virtual const char * getMD5() override { return "af24d77e0b8329be8d17a782ba80f5e2"; };
 
   };
 
