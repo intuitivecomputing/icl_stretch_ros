@@ -38,8 +38,6 @@ namespace moveit_msgs
       _pose_stamped_vector_type * pose_stamped_vector;
       typedef ros::Duration _timeout_type;
       _timeout_type timeout;
-      typedef int32_t _attempts_type;
-      _attempts_type attempts;
 
     PositionIKRequest():
       group_name(""),
@@ -48,14 +46,13 @@ namespace moveit_msgs
       avoid_collisions(0),
       ik_link_name(""),
       pose_stamped(),
-      ik_link_names_length(0), ik_link_names(NULL),
-      pose_stamped_vector_length(0), pose_stamped_vector(NULL),
-      timeout(),
-      attempts(0)
+      ik_link_names_length(0), st_ik_link_names(), ik_link_names(nullptr),
+      pose_stamped_vector_length(0), st_pose_stamped_vector(), pose_stamped_vector(nullptr),
+      timeout()
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       uint32_t length_group_name = strlen(this->group_name);
@@ -108,20 +105,10 @@ namespace moveit_msgs
       *(outbuffer + offset + 2) = (this->timeout.nsec >> (8 * 2)) & 0xFF;
       *(outbuffer + offset + 3) = (this->timeout.nsec >> (8 * 3)) & 0xFF;
       offset += sizeof(this->timeout.nsec);
-      union {
-        int32_t real;
-        uint32_t base;
-      } u_attempts;
-      u_attempts.real = this->attempts;
-      *(outbuffer + offset + 0) = (u_attempts.base >> (8 * 0)) & 0xFF;
-      *(outbuffer + offset + 1) = (u_attempts.base >> (8 * 1)) & 0xFF;
-      *(outbuffer + offset + 2) = (u_attempts.base >> (8 * 2)) & 0xFF;
-      *(outbuffer + offset + 3) = (u_attempts.base >> (8 * 3)) & 0xFF;
-      offset += sizeof(this->attempts);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       uint32_t length_group_name;
@@ -195,22 +182,11 @@ namespace moveit_msgs
       this->timeout.nsec |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
       this->timeout.nsec |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
       offset += sizeof(this->timeout.nsec);
-      union {
-        int32_t real;
-        uint32_t base;
-      } u_attempts;
-      u_attempts.base = 0;
-      u_attempts.base |= ((uint32_t) (*(inbuffer + offset + 0))) << (8 * 0);
-      u_attempts.base |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1);
-      u_attempts.base |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2);
-      u_attempts.base |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3);
-      this->attempts = u_attempts.real;
-      offset += sizeof(this->attempts);
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/PositionIKRequest"; };
-    const char * getMD5(){ return "9936dc239c90af180ec94a51596c96f2"; };
+    virtual const char * getType() override { return "moveit_msgs/PositionIKRequest"; };
+    virtual const char * getMD5() override { return "cb7c3615ee4d29d023dfdc5950af0504"; };
 
   };
 

@@ -14,6 +14,8 @@ namespace moveit_msgs
     public:
       typedef const char* _name_type;
       _name_type name;
+      typedef const char* _pipeline_id_type;
+      _pipeline_id_type pipeline_id;
       uint32_t planner_ids_length;
       typedef char* _planner_ids_type;
       _planner_ids_type st_planner_ids;
@@ -21,11 +23,12 @@ namespace moveit_msgs
 
     PlannerInterfaceDescription():
       name(""),
-      planner_ids_length(0), planner_ids(NULL)
+      pipeline_id(""),
+      planner_ids_length(0), st_planner_ids(), planner_ids(nullptr)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       uint32_t length_name = strlen(this->name);
@@ -33,6 +36,11 @@ namespace moveit_msgs
       offset += 4;
       memcpy(outbuffer + offset, this->name, length_name);
       offset += length_name;
+      uint32_t length_pipeline_id = strlen(this->pipeline_id);
+      varToArr(outbuffer + offset, length_pipeline_id);
+      offset += 4;
+      memcpy(outbuffer + offset, this->pipeline_id, length_pipeline_id);
+      offset += length_pipeline_id;
       *(outbuffer + offset + 0) = (this->planner_ids_length >> (8 * 0)) & 0xFF;
       *(outbuffer + offset + 1) = (this->planner_ids_length >> (8 * 1)) & 0xFF;
       *(outbuffer + offset + 2) = (this->planner_ids_length >> (8 * 2)) & 0xFF;
@@ -48,7 +56,7 @@ namespace moveit_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       uint32_t length_name;
@@ -60,6 +68,15 @@ namespace moveit_msgs
       inbuffer[offset+length_name-1]=0;
       this->name = (char *)(inbuffer + offset-1);
       offset += length_name;
+      uint32_t length_pipeline_id;
+      arrToVar(length_pipeline_id, (inbuffer + offset));
+      offset += 4;
+      for(unsigned int k= offset; k< offset+length_pipeline_id; ++k){
+          inbuffer[k-1]=inbuffer[k];
+      }
+      inbuffer[offset+length_pipeline_id-1]=0;
+      this->pipeline_id = (char *)(inbuffer + offset-1);
+      offset += length_pipeline_id;
       uint32_t planner_ids_lengthT = ((uint32_t) (*(inbuffer + offset))); 
       planner_ids_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
       planner_ids_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
@@ -83,8 +100,8 @@ namespace moveit_msgs
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/PlannerInterfaceDescription"; };
-    const char * getMD5(){ return "ea5f6e6129aa1b110ccda9900d2bf25e"; };
+    virtual const char * getType() override { return "moveit_msgs/PlannerInterfaceDescription"; };
+    virtual const char * getMD5() override { return "3b93afb00ba165a83730c4eb03cd1ab7"; };
 
   };
 

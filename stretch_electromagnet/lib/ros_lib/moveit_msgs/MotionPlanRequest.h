@@ -9,6 +9,7 @@
 #include "moveit_msgs/RobotState.h"
 #include "moveit_msgs/Constraints.h"
 #include "moveit_msgs/TrajectoryConstraints.h"
+#include "moveit_msgs/GenericTrajectory.h"
 
 namespace moveit_msgs
 {
@@ -28,6 +29,12 @@ namespace moveit_msgs
       _path_constraints_type path_constraints;
       typedef moveit_msgs::TrajectoryConstraints _trajectory_constraints_type;
       _trajectory_constraints_type trajectory_constraints;
+      uint32_t reference_trajectories_length;
+      typedef moveit_msgs::GenericTrajectory _reference_trajectories_type;
+      _reference_trajectories_type st_reference_trajectories;
+      _reference_trajectories_type * reference_trajectories;
+      typedef const char* _pipeline_id_type;
+      _pipeline_id_type pipeline_id;
       typedef const char* _planner_id_type;
       _planner_id_type planner_id;
       typedef const char* _group_name_type;
@@ -40,23 +47,31 @@ namespace moveit_msgs
       _max_velocity_scaling_factor_type max_velocity_scaling_factor;
       typedef float _max_acceleration_scaling_factor_type;
       _max_acceleration_scaling_factor_type max_acceleration_scaling_factor;
+      typedef const char* _cartesian_speed_end_effector_link_type;
+      _cartesian_speed_end_effector_link_type cartesian_speed_end_effector_link;
+      typedef float _max_cartesian_speed_type;
+      _max_cartesian_speed_type max_cartesian_speed;
 
     MotionPlanRequest():
       workspace_parameters(),
       start_state(),
-      goal_constraints_length(0), goal_constraints(NULL),
+      goal_constraints_length(0), st_goal_constraints(), goal_constraints(nullptr),
       path_constraints(),
       trajectory_constraints(),
+      reference_trajectories_length(0), st_reference_trajectories(), reference_trajectories(nullptr),
+      pipeline_id(""),
       planner_id(""),
       group_name(""),
       num_planning_attempts(0),
       allowed_planning_time(0),
       max_velocity_scaling_factor(0),
-      max_acceleration_scaling_factor(0)
+      max_acceleration_scaling_factor(0),
+      cartesian_speed_end_effector_link(""),
+      max_cartesian_speed(0)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->workspace_parameters.serialize(outbuffer + offset);
@@ -71,6 +86,19 @@ namespace moveit_msgs
       }
       offset += this->path_constraints.serialize(outbuffer + offset);
       offset += this->trajectory_constraints.serialize(outbuffer + offset);
+      *(outbuffer + offset + 0) = (this->reference_trajectories_length >> (8 * 0)) & 0xFF;
+      *(outbuffer + offset + 1) = (this->reference_trajectories_length >> (8 * 1)) & 0xFF;
+      *(outbuffer + offset + 2) = (this->reference_trajectories_length >> (8 * 2)) & 0xFF;
+      *(outbuffer + offset + 3) = (this->reference_trajectories_length >> (8 * 3)) & 0xFF;
+      offset += sizeof(this->reference_trajectories_length);
+      for( uint32_t i = 0; i < reference_trajectories_length; i++){
+      offset += this->reference_trajectories[i].serialize(outbuffer + offset);
+      }
+      uint32_t length_pipeline_id = strlen(this->pipeline_id);
+      varToArr(outbuffer + offset, length_pipeline_id);
+      offset += 4;
+      memcpy(outbuffer + offset, this->pipeline_id, length_pipeline_id);
+      offset += length_pipeline_id;
       uint32_t length_planner_id = strlen(this->planner_id);
       varToArr(outbuffer + offset, length_planner_id);
       offset += 4;
@@ -94,10 +122,16 @@ namespace moveit_msgs
       offset += serializeAvrFloat64(outbuffer + offset, this->allowed_planning_time);
       offset += serializeAvrFloat64(outbuffer + offset, this->max_velocity_scaling_factor);
       offset += serializeAvrFloat64(outbuffer + offset, this->max_acceleration_scaling_factor);
+      uint32_t length_cartesian_speed_end_effector_link = strlen(this->cartesian_speed_end_effector_link);
+      varToArr(outbuffer + offset, length_cartesian_speed_end_effector_link);
+      offset += 4;
+      memcpy(outbuffer + offset, this->cartesian_speed_end_effector_link, length_cartesian_speed_end_effector_link);
+      offset += length_cartesian_speed_end_effector_link;
+      offset += serializeAvrFloat64(outbuffer + offset, this->max_cartesian_speed);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->workspace_parameters.deserialize(inbuffer + offset);
@@ -116,6 +150,27 @@ namespace moveit_msgs
       }
       offset += this->path_constraints.deserialize(inbuffer + offset);
       offset += this->trajectory_constraints.deserialize(inbuffer + offset);
+      uint32_t reference_trajectories_lengthT = ((uint32_t) (*(inbuffer + offset))); 
+      reference_trajectories_lengthT |= ((uint32_t) (*(inbuffer + offset + 1))) << (8 * 1); 
+      reference_trajectories_lengthT |= ((uint32_t) (*(inbuffer + offset + 2))) << (8 * 2); 
+      reference_trajectories_lengthT |= ((uint32_t) (*(inbuffer + offset + 3))) << (8 * 3); 
+      offset += sizeof(this->reference_trajectories_length);
+      if(reference_trajectories_lengthT > reference_trajectories_length)
+        this->reference_trajectories = (moveit_msgs::GenericTrajectory*)realloc(this->reference_trajectories, reference_trajectories_lengthT * sizeof(moveit_msgs::GenericTrajectory));
+      reference_trajectories_length = reference_trajectories_lengthT;
+      for( uint32_t i = 0; i < reference_trajectories_length; i++){
+      offset += this->st_reference_trajectories.deserialize(inbuffer + offset);
+        memcpy( &(this->reference_trajectories[i]), &(this->st_reference_trajectories), sizeof(moveit_msgs::GenericTrajectory));
+      }
+      uint32_t length_pipeline_id;
+      arrToVar(length_pipeline_id, (inbuffer + offset));
+      offset += 4;
+      for(unsigned int k= offset; k< offset+length_pipeline_id; ++k){
+          inbuffer[k-1]=inbuffer[k];
+      }
+      inbuffer[offset+length_pipeline_id-1]=0;
+      this->pipeline_id = (char *)(inbuffer + offset-1);
+      offset += length_pipeline_id;
       uint32_t length_planner_id;
       arrToVar(length_planner_id, (inbuffer + offset));
       offset += 4;
@@ -148,11 +203,21 @@ namespace moveit_msgs
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->allowed_planning_time));
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->max_velocity_scaling_factor));
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->max_acceleration_scaling_factor));
+      uint32_t length_cartesian_speed_end_effector_link;
+      arrToVar(length_cartesian_speed_end_effector_link, (inbuffer + offset));
+      offset += 4;
+      for(unsigned int k= offset; k< offset+length_cartesian_speed_end_effector_link; ++k){
+          inbuffer[k-1]=inbuffer[k];
+      }
+      inbuffer[offset+length_cartesian_speed_end_effector_link-1]=0;
+      this->cartesian_speed_end_effector_link = (char *)(inbuffer + offset-1);
+      offset += length_cartesian_speed_end_effector_link;
+      offset += deserializeAvrFloat64(inbuffer + offset, &(this->max_cartesian_speed));
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/MotionPlanRequest"; };
-    const char * getMD5(){ return "c3bec13a525a6ae66e0fc57b768fdca6"; };
+    virtual const char * getType() override { return "moveit_msgs/MotionPlanRequest"; };
+    virtual const char * getMD5() override { return "9544d5f3b9cf69a0e1e7f8c75d87f54b"; };
 
   };
 

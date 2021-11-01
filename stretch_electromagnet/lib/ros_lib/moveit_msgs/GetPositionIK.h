@@ -24,22 +24,22 @@ static const char GETPOSITIONIK[] = "moveit_msgs/GetPositionIK";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->ik_request.serialize(outbuffer + offset);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->ik_request.deserialize(inbuffer + offset);
      return offset;
     }
 
-    const char * getType(){ return GETPOSITIONIK; };
-    const char * getMD5(){ return "a67dc7e99d15c1dca32a77c22bc2d93b"; };
+    virtual const char * getType() override { return GETPOSITIONIK; };
+    virtual const char * getMD5() override { return "8388b54598336654bca82763f918a740"; };
 
   };
 
@@ -57,7 +57,7 @@ static const char GETPOSITIONIK[] = "moveit_msgs/GetPositionIK";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->solution.serialize(outbuffer + offset);
@@ -65,7 +65,7 @@ static const char GETPOSITIONIK[] = "moveit_msgs/GetPositionIK";
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->solution.deserialize(inbuffer + offset);
@@ -73,8 +73,8 @@ static const char GETPOSITIONIK[] = "moveit_msgs/GetPositionIK";
      return offset;
     }
 
-    const char * getType(){ return GETPOSITIONIK; };
-    const char * getMD5(){ return "ad50fe5fa0ddb482909be313121ea148"; };
+    virtual const char * getType() override { return GETPOSITIONIK; };
+    virtual const char * getMD5() override { return "3943ba9ed5631a4f63888551da37cd16"; };
 
   };
 

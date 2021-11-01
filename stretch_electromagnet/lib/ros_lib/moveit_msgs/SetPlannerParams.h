@@ -14,6 +14,8 @@ static const char SETPLANNERPARAMS[] = "moveit_msgs/SetPlannerParams";
   class SetPlannerParamsRequest : public ros::Msg
   {
     public:
+      typedef const char* _pipeline_id_type;
+      _pipeline_id_type pipeline_id;
       typedef const char* _planner_config_type;
       _planner_config_type planner_config;
       typedef const char* _group_type;
@@ -24,6 +26,7 @@ static const char SETPLANNERPARAMS[] = "moveit_msgs/SetPlannerParams";
       _replace_type replace;
 
     SetPlannerParamsRequest():
+      pipeline_id(""),
       planner_config(""),
       group(""),
       params(),
@@ -31,9 +34,14 @@ static const char SETPLANNERPARAMS[] = "moveit_msgs/SetPlannerParams";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
+      uint32_t length_pipeline_id = strlen(this->pipeline_id);
+      varToArr(outbuffer + offset, length_pipeline_id);
+      offset += 4;
+      memcpy(outbuffer + offset, this->pipeline_id, length_pipeline_id);
+      offset += length_pipeline_id;
       uint32_t length_planner_config = strlen(this->planner_config);
       varToArr(outbuffer + offset, length_planner_config);
       offset += 4;
@@ -55,9 +63,18 @@ static const char SETPLANNERPARAMS[] = "moveit_msgs/SetPlannerParams";
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
+      uint32_t length_pipeline_id;
+      arrToVar(length_pipeline_id, (inbuffer + offset));
+      offset += 4;
+      for(unsigned int k= offset; k< offset+length_pipeline_id; ++k){
+          inbuffer[k-1]=inbuffer[k];
+      }
+      inbuffer[offset+length_pipeline_id-1]=0;
+      this->pipeline_id = (char *)(inbuffer + offset-1);
+      offset += length_pipeline_id;
       uint32_t length_planner_config;
       arrToVar(length_planner_config, (inbuffer + offset));
       offset += 4;
@@ -88,8 +105,8 @@ static const char SETPLANNERPARAMS[] = "moveit_msgs/SetPlannerParams";
      return offset;
     }
 
-    const char * getType(){ return SETPLANNERPARAMS; };
-    const char * getMD5(){ return "86762d89189c5f52cda7680fdbceb1db"; };
+    virtual const char * getType() override { return SETPLANNERPARAMS; };
+    virtual const char * getMD5() override { return "14bebee5d4d53a2df94b7f146d3eb2ff"; };
 
   };
 
@@ -101,20 +118,20 @@ static const char SETPLANNERPARAMS[] = "moveit_msgs/SetPlannerParams";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
      return offset;
     }
 
-    const char * getType(){ return SETPLANNERPARAMS; };
-    const char * getMD5(){ return "d41d8cd98f00b204e9800998ecf8427e"; };
+    virtual const char * getType() override { return SETPLANNERPARAMS; };
+    virtual const char * getMD5() override { return "d41d8cd98f00b204e9800998ecf8427e"; };
 
   };
 

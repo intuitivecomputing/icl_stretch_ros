@@ -4,8 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ros/msg.h"
-#include "moveit_msgs/MotionPlanRequest.h"
 #include "moveit_msgs/MotionPlanResponse.h"
+#include "moveit_msgs/MotionPlanRequest.h"
 
 namespace moveit_msgs
 {
@@ -23,22 +23,22 @@ static const char GETMOTIONPLAN[] = "moveit_msgs/GetMotionPlan";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->motion_plan_request.serialize(outbuffer + offset);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->motion_plan_request.deserialize(inbuffer + offset);
      return offset;
     }
 
-    const char * getType(){ return GETMOTIONPLAN; };
-    const char * getMD5(){ return "9dcb82c5daeb2ff8a7ab1a98b642871d"; };
+    virtual const char * getType() override { return GETMOTIONPLAN; };
+    virtual const char * getMD5() override { return "5459d2db10f706c7e69e5485e0b58672"; };
 
   };
 
@@ -53,22 +53,22 @@ static const char GETMOTIONPLAN[] = "moveit_msgs/GetMotionPlan";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->motion_plan_response.serialize(outbuffer + offset);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->motion_plan_response.deserialize(inbuffer + offset);
      return offset;
     }
 
-    const char * getType(){ return GETMOTIONPLAN; };
-    const char * getMD5(){ return "37fe7e8f0d4dfa55ccfa53d63c86ae15"; };
+    virtual const char * getType() override { return GETMOTIONPLAN; };
+    virtual const char * getMD5() override { return "b87f68f66cd157fdfe416b1070b9ecb6"; };
 
   };
 

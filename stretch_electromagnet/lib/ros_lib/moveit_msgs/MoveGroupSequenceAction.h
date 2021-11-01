@@ -29,7 +29,7 @@ namespace moveit_msgs
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->action_goal.serialize(outbuffer + offset);
@@ -38,7 +38,7 @@ namespace moveit_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->action_goal.deserialize(inbuffer + offset);
@@ -47,8 +47,8 @@ namespace moveit_msgs
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/MoveGroupSequenceAction"; };
-    const char * getMD5(){ return "146b2ccf95324a792cf72761e640ab31"; };
+    virtual const char * getType() override { return "moveit_msgs/MoveGroupSequenceAction"; };
+    virtual const char * getMD5() override { return "475daac0686b85f9091fb82c70a9932c"; };
 
   };
 

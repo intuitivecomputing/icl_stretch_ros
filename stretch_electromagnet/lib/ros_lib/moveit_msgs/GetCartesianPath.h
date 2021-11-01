@@ -6,10 +6,10 @@
 #include "ros/msg.h"
 #include "std_msgs/Header.h"
 #include "moveit_msgs/RobotTrajectory.h"
-#include "moveit_msgs/RobotState.h"
-#include "moveit_msgs/MoveItErrorCodes.h"
 #include "geometry_msgs/Pose.h"
 #include "moveit_msgs/Constraints.h"
+#include "moveit_msgs/MoveItErrorCodes.h"
+#include "moveit_msgs/RobotState.h"
 
 namespace moveit_msgs
 {
@@ -35,6 +35,10 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
       _max_step_type max_step;
       typedef float _jump_threshold_type;
       _jump_threshold_type jump_threshold;
+      typedef float _prismatic_jump_threshold_type;
+      _prismatic_jump_threshold_type prismatic_jump_threshold;
+      typedef float _revolute_jump_threshold_type;
+      _revolute_jump_threshold_type revolute_jump_threshold;
       typedef bool _avoid_collisions_type;
       _avoid_collisions_type avoid_collisions;
       typedef moveit_msgs::Constraints _path_constraints_type;
@@ -45,15 +49,17 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
       start_state(),
       group_name(""),
       link_name(""),
-      waypoints_length(0), waypoints(NULL),
+      waypoints_length(0), st_waypoints(), waypoints(nullptr),
       max_step(0),
       jump_threshold(0),
+      prismatic_jump_threshold(0),
+      revolute_jump_threshold(0),
       avoid_collisions(0),
       path_constraints()
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
@@ -78,6 +84,8 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
       }
       offset += serializeAvrFloat64(outbuffer + offset, this->max_step);
       offset += serializeAvrFloat64(outbuffer + offset, this->jump_threshold);
+      offset += serializeAvrFloat64(outbuffer + offset, this->prismatic_jump_threshold);
+      offset += serializeAvrFloat64(outbuffer + offset, this->revolute_jump_threshold);
       union {
         bool real;
         uint8_t base;
@@ -89,7 +97,7 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
@@ -126,6 +134,8 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
       }
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->max_step));
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->jump_threshold));
+      offset += deserializeAvrFloat64(inbuffer + offset, &(this->prismatic_jump_threshold));
+      offset += deserializeAvrFloat64(inbuffer + offset, &(this->revolute_jump_threshold));
       union {
         bool real;
         uint8_t base;
@@ -138,8 +148,8 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
      return offset;
     }
 
-    const char * getType(){ return GETCARTESIANPATH; };
-    const char * getMD5(){ return "b37c16ad7ed838d811a270a8054276b6"; };
+    virtual const char * getType() override { return GETCARTESIANPATH; };
+    virtual const char * getMD5() override { return "721648200a81dbec003e9f1273aa2c80"; };
 
   };
 
@@ -163,7 +173,7 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->start_state.serialize(outbuffer + offset);
@@ -173,7 +183,7 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->start_state.deserialize(inbuffer + offset);
@@ -183,8 +193,8 @@ static const char GETCARTESIANPATH[] = "moveit_msgs/GetCartesianPath";
      return offset;
     }
 
-    const char * getType(){ return GETCARTESIANPATH; };
-    const char * getMD5(){ return "45414110461a45eb0e273e013924ce59"; };
+    virtual const char * getType() override { return GETCARTESIANPATH; };
+    virtual const char * getMD5() override { return "15ee95715c86802ada727b6361c6f4d2"; };
 
   };
 

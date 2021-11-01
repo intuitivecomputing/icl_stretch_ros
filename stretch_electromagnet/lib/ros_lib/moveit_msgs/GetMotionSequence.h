@@ -23,22 +23,22 @@ static const char GETMOTIONSEQUENCE[] = "moveit_msgs/GetMotionSequence";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->request.serialize(outbuffer + offset);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->request.deserialize(inbuffer + offset);
      return offset;
     }
 
-    const char * getType(){ return GETMOTIONSEQUENCE; };
-    const char * getMD5(){ return "bae3996834a2cd1013b32c29e6a79b4e"; };
+    virtual const char * getType() override { return GETMOTIONSEQUENCE; };
+    virtual const char * getMD5() override { return "11150cd5e0f28e8150c69bc9644753db"; };
 
   };
 
@@ -53,22 +53,22 @@ static const char GETMOTIONSEQUENCE[] = "moveit_msgs/GetMotionSequence";
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->response.serialize(outbuffer + offset);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->response.deserialize(inbuffer + offset);
      return offset;
     }
 
-    const char * getType(){ return GETMOTIONSEQUENCE; };
-    const char * getMD5(){ return "039cee462ada3f0feb5f4e2e12baefae"; };
+    virtual const char * getType() override { return GETMOTIONSEQUENCE; };
+    virtual const char * getMD5() override { return "f9e8d60e1364fc328ca518c74adb130b"; };
 
   };
 

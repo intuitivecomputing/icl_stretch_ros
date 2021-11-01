@@ -26,8 +26,12 @@ namespace moveit_msgs
       _absolute_y_axis_tolerance_type absolute_y_axis_tolerance;
       typedef float _absolute_z_axis_tolerance_type;
       _absolute_z_axis_tolerance_type absolute_z_axis_tolerance;
+      typedef uint8_t _parameterization_type;
+      _parameterization_type parameterization;
       typedef float _weight_type;
       _weight_type weight;
+      enum { XYZ_EULER_ANGLES = 0 };
+      enum { ROTATION_VECTOR = 1 };
 
     OrientationConstraint():
       header(),
@@ -36,11 +40,12 @@ namespace moveit_msgs
       absolute_x_axis_tolerance(0),
       absolute_y_axis_tolerance(0),
       absolute_z_axis_tolerance(0),
+      parameterization(0),
       weight(0)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->header.serialize(outbuffer + offset);
@@ -53,11 +58,13 @@ namespace moveit_msgs
       offset += serializeAvrFloat64(outbuffer + offset, this->absolute_x_axis_tolerance);
       offset += serializeAvrFloat64(outbuffer + offset, this->absolute_y_axis_tolerance);
       offset += serializeAvrFloat64(outbuffer + offset, this->absolute_z_axis_tolerance);
+      *(outbuffer + offset + 0) = (this->parameterization >> (8 * 0)) & 0xFF;
+      offset += sizeof(this->parameterization);
       offset += serializeAvrFloat64(outbuffer + offset, this->weight);
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->header.deserialize(inbuffer + offset);
@@ -74,12 +81,14 @@ namespace moveit_msgs
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->absolute_x_axis_tolerance));
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->absolute_y_axis_tolerance));
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->absolute_z_axis_tolerance));
+      this->parameterization =  ((uint8_t) (*(inbuffer + offset)));
+      offset += sizeof(this->parameterization);
       offset += deserializeAvrFloat64(inbuffer + offset, &(this->weight));
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/OrientationConstraint"; };
-    const char * getMD5(){ return "ab5cefb9bc4c0089620f5eb4caf4e59a"; };
+    virtual const char * getType() override { return "moveit_msgs/OrientationConstraint"; };
+    virtual const char * getMD5() override { return "183479d9281e5b4f23dc584f711d8a64"; };
 
   };
 

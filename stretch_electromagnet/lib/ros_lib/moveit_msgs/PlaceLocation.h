@@ -21,6 +21,8 @@ namespace moveit_msgs
       _post_place_posture_type post_place_posture;
       typedef geometry_msgs::PoseStamped _place_pose_type;
       _place_pose_type place_pose;
+      typedef float _quality_type;
+      _quality_type quality;
       typedef moveit_msgs::GripperTranslation _pre_place_approach_type;
       _pre_place_approach_type pre_place_approach;
       typedef moveit_msgs::GripperTranslation _post_place_retreat_type;
@@ -34,13 +36,14 @@ namespace moveit_msgs
       id(""),
       post_place_posture(),
       place_pose(),
+      quality(0),
       pre_place_approach(),
       post_place_retreat(),
-      allowed_touch_objects_length(0), allowed_touch_objects(NULL)
+      allowed_touch_objects_length(0), st_allowed_touch_objects(), allowed_touch_objects(nullptr)
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       uint32_t length_id = strlen(this->id);
@@ -50,6 +53,7 @@ namespace moveit_msgs
       offset += length_id;
       offset += this->post_place_posture.serialize(outbuffer + offset);
       offset += this->place_pose.serialize(outbuffer + offset);
+      offset += serializeAvrFloat64(outbuffer + offset, this->quality);
       offset += this->pre_place_approach.serialize(outbuffer + offset);
       offset += this->post_place_retreat.serialize(outbuffer + offset);
       *(outbuffer + offset + 0) = (this->allowed_touch_objects_length >> (8 * 0)) & 0xFF;
@@ -67,7 +71,7 @@ namespace moveit_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       uint32_t length_id;
@@ -81,6 +85,7 @@ namespace moveit_msgs
       offset += length_id;
       offset += this->post_place_posture.deserialize(inbuffer + offset);
       offset += this->place_pose.deserialize(inbuffer + offset);
+      offset += deserializeAvrFloat64(inbuffer + offset, &(this->quality));
       offset += this->pre_place_approach.deserialize(inbuffer + offset);
       offset += this->post_place_retreat.deserialize(inbuffer + offset);
       uint32_t allowed_touch_objects_lengthT = ((uint32_t) (*(inbuffer + offset))); 
@@ -106,8 +111,8 @@ namespace moveit_msgs
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/PlaceLocation"; };
-    const char * getMD5(){ return "f3dbcaca40fb29ede2af78b3e1831128"; };
+    virtual const char * getType() override { return "moveit_msgs/PlaceLocation"; };
+    virtual const char * getMD5() override { return "7b53f032c68481686026c3e9223d0713"; };
 
   };
 

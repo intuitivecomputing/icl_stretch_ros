@@ -37,6 +37,7 @@ namespace moveit_msgs
       enum { COLLISION_CHECKING_UNAVAILABLE = -22 };
       enum { ROBOT_STATE_STALE = -23 };
       enum { SENSOR_INFO_STALE = -24 };
+      enum { COMMUNICATION_FAILURE = -25 };
       enum { NO_IK_SOLUTION = -31 };
 
     MoveItErrorCodes():
@@ -44,7 +45,7 @@ namespace moveit_msgs
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       union {
@@ -60,7 +61,7 @@ namespace moveit_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       union {
@@ -77,8 +78,8 @@ namespace moveit_msgs
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/MoveItErrorCodes"; };
-    const char * getMD5(){ return "aa336b18d80531f66439810112c0a43e"; };
+    virtual const char * getType() override { return "moveit_msgs/MoveItErrorCodes"; };
+    virtual const char * getMD5() override { return "35a153d4489afb90a182bbf874ecc0f3"; };
 
   };
 

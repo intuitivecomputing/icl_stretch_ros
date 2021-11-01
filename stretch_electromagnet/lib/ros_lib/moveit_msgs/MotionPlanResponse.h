@@ -35,7 +35,7 @@ namespace moveit_msgs
     {
     }
 
-    virtual int serialize(unsigned char *outbuffer) const
+    virtual int serialize(unsigned char *outbuffer) const override
     {
       int offset = 0;
       offset += this->trajectory_start.serialize(outbuffer + offset);
@@ -50,7 +50,7 @@ namespace moveit_msgs
       return offset;
     }
 
-    virtual int deserialize(unsigned char *inbuffer)
+    virtual int deserialize(unsigned char *inbuffer) override
     {
       int offset = 0;
       offset += this->trajectory_start.deserialize(inbuffer + offset);
@@ -69,8 +69,8 @@ namespace moveit_msgs
      return offset;
     }
 
-    const char * getType(){ return "moveit_msgs/MotionPlanResponse"; };
-    const char * getMD5(){ return "e493d20ab41424c48f671e152c70fc74"; };
+    virtual const char * getType() override { return "moveit_msgs/MotionPlanResponse"; };
+    virtual const char * getMD5() override { return "141570ca7cae4d1dac9775d42407292d"; };
 
   };
 
