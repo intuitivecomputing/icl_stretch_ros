@@ -1,0 +1,7 @@
+<launch>
+    <!-- VISUALIZE -->
+  <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find sp_core)/config/rviz/sp.rviz" />
+  <!-- -->
+
+   <node name = "rqt_dashboard" pkg = "rqt_gui" type = "rqt_gui" respawn = "false" output = "screen" args = "--perspective-file $(find sp_core)/config/perspectives/stretch.perspective"/>
+</launch>
