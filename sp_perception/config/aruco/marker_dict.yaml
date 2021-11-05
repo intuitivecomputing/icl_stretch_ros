@@ -22,7 +22,7 @@
     "name": "target_0"
     "link": "base_link"
   "81":
-    "length_mm": 35
+    "length_mm": 100
     "use_rgb_only": False
     "name": "target_1"
     "link": "base_link"
