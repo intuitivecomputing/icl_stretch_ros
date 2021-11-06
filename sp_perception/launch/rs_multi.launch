@@ -10,6 +10,10 @@
 
     <!-- REDUCE RATE AND USE NUC TIME -->
     <node name="d435i_accel_correction" pkg="stretch_core" type="d435i_accel_correction" output="screen" />
+
+      <node name="d435i_configure" pkg="stretch_core" type="d435i_configure" output="screen">
+        <!--<param name="initial_mode" type="string" value="Default"/>-->
+        <param name="initial_mode" type="string" value="High Accuracy"/>
     </node>
 
     <!-- Static tf for cam 2 -->

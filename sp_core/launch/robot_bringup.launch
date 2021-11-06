@@ -6,10 +6,6 @@
 
   <!-- Launch multiple REALSENSE D435i -->
   <include file="$(find sp_perception)/launch/rs_multi.launch"></include>
-  <node name="d435i_configure" pkg="stretch_core" type="d435i_configure" output="screen">
-    <!--<param name="initial_mode" type="string" value="Default"/>-->
-    <param name="initial_mode" type="string" value="High Accuracy"/>
-  </node>
   <!-- -->
 
   <!-- ARUCO MARKER DETECTOR -->
