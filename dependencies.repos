@@ -1,9 +1,9 @@
 repositories:
-  ../FlexBE:
+  ../FlexBE/flexbe_app:
     type: git
     url: git@github.com:FlexBE/flexbe_app.git
     version: master
-  ../FlexBE:
+  ../FlexBE/generic_flexbe_states:
     type: git
     url: git@github.com:FlexBE/generic_flexbe_states.git
     version: master
