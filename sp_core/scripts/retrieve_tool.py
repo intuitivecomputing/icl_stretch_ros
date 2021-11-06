@@ -24,7 +24,13 @@ import numpy as np
 import os
 
 import hello_helpers.hello_misc as hm
+import hello_helpers.hello_ros_viz as hr
+
+import stretch_funmap.merge_maps as mm
 import stretch_funmap.navigate as nv
+import stretch_funmap.mapping as ma
+import stretch_funmap.segment_max_height_image as sm
+import stretch_funmap.navigation_planning as na
 import stretch_funmap.manipulation_planning as mp
 
 # move_to_pose :
@@ -44,6 +50,11 @@ import stretch_funmap.manipulation_planning as mp
 # incrementing_joint_names = ["translate_mobile_base", "rotate_mobile_base"]
 
 
+class RobotInterface:
+    def __init__(self, node):
+        self.move_base = nv.MoveBase(node)
+
+
 class RetrieveInstrumentsNode(hm.HelloNode):
     def __init__(self):
         hm.HelloNode.__init__(self)
@@ -58,19 +69,79 @@ class RetrieveInstrumentsNode(hm.HelloNode):
 
         self.wrist_camera_topic = "/wrist_camera/depth/color/points"
 
-        self.workbench_goal = Pose([-1.55, 1, 0.0], [0, 0, 0.04, 0.99])
-        self.shelf_goal = Pose([0.5, -0.3, 0.0], [0, 0, 0.99, 0.04])
+        self.workbench_goal = Pose([0.0, 0.1, 0.0], [0, 0, 0.0, 0.0])
+        self.shelf_goal = Pose([1.3, 2.4, 0.0], [0, 0, 0.0, 1.57])
 
-    def move_to_initial_configuration(self):
-        initial_pose = {
-            "wrist_extension": 0.01,
-            "joint_wrist_yaw": 0.0,
-            "joint_lift": 0.5,
-            "gripper_aperture": 0.0,  # 0.125,
-        }
+    def _init_params(self):
+        self.debug_directory = rospy.get_param("~debug_directory")
+        rospy.loginfo(
+            "Using the following directory for debugging files: {0}".format(
+                self.debug_directory
+            )
+        )
 
-        rospy.loginfo("Move to the initial configuration for drawer opening.")
-        self.move_to_pose(initial_pose)
+    def _init_subscribers(self):
+        # Subscribe
+        # wrist_camera_topic = "/wrist_camera/depth/color/points"
+        # self.wrist_camera_subscriber = rospy.Subscriber(
+        #     wrist_camera_topic,
+        #     PointCloud2,
+        #     self.wrist_camera_callback,
+        # )
+
+        self.joint_states_subscriber = rospy.Subscriber(
+            "/stretch/joint_states", JointState, self.joint_states_callback
+        )
+
+    def _init_services(self):
+        # Services
+        self.trigger_grasp_object_service = rospy.Service(
+            "trigger_grasp_object",
+            Trigger,
+            self.trigger_grasp_object_callback,
+        )
+
+        # RealSense services
+        default_service = "/camera/switch_to_default_mode"
+        high_accuracy_service = "/camera/switch_to_high_accuracy_mode"
+        rospy.loginfo(
+            "Node "
+            + self.node_name
+            + " waiting to connect to "
+            + default_service
+            + " and "
+            + high_accuracy_service
+        )
+        rospy.wait_for_service(default_service)
+        rospy.loginfo(
+            "Node " + self.node_name + " connected to " + default_service
+        )
+        self.trigger_d435i_default_mode_service = rospy.ServiceProxy(
+            "/camera/switch_to_default_mode", Trigger
+        )
+        rospy.wait_for_service(high_accuracy_service)
+        rospy.loginfo(
+            "Node " + self.node_name + " connected to" + high_accuracy_service
+        )
+        self.trigger_d435i_high_accuracy_mode_service = rospy.ServiceProxy(
+            high_accuracy_service, Trigger
+        )
+
+        # Robot services
+        # self.calibrate_service = rospy.ServiceProxy("/calibrate_the_robot", Trigger)
+
+    # def move_to_initial_configuration(self):
+
+    #     ma.stow_and_lower_arm(self)
+    #     initial_pose = {
+    #         "wrist_extension": 0.01,
+    #         "joint_wrist_yaw": 0.0,
+    #         "joint_lift": 0.5,
+    #         "gripper_aperture": 0.0,  # 0.125,
+    #     }
+
+    #     rospy.loginfo("Move to the initial configuration for drawer opening.")
+    #     self.move_to_pose(initial_pose)
 
     def gripper_close(self):
         self.move_to_pose(dict(gripper_aperture=0.0))
@@ -122,58 +193,9 @@ class RetrieveInstrumentsNode(hm.HelloNode):
             wait_for_first_pointcloud=False,
         )
 
-        self.debug_directory = rospy.get_param("~debug_directory")
-        rospy.loginfo(
-            "Using the following directory for debugging files: {0}".format(
-                self.debug_directory
-            )
-        )
-
-        # Subscribe
-        # wrist_camera_topic = "/wrist_camera/depth/color/points"
-        # self.wrist_camera_subscriber = rospy.Subscriber(
-        #     wrist_camera_topic,
-        #     PointCloud2,
-        #     self.wrist_camera_callback,
-        # )
-
-        self.joint_states_subscriber = rospy.Subscriber(
-            "/stretch/joint_states", JointState, self.joint_states_callback
-        )
-
-        # Services
-        self.trigger_grasp_object_service = rospy.Service(
-            "trigger_grasp_object",
-            Trigger,
-            self.trigger_grasp_object_callback,
-        )
-
-        # RealSense services
-        default_service = "/camera/switch_to_default_mode"
-        high_accuracy_service = "/camera/switch_to_high_accuracy_mode"
-        rospy.loginfo(
-            "Node "
-            + self.node_name
-            + " waiting to connect to "
-            + default_service
-            + " and "
-            + high_accuracy_service
-        )
-        rospy.wait_for_service(default_service)
-        rospy.loginfo(
-            "Node " + self.node_name + " connected to " + default_service
-        )
-        self.trigger_d435i_default_mode_service = rospy.ServiceProxy(
-            default_service, Trigger
-        )
-        rospy.wait_for_service(high_accuracy_service)
-        rospy.loginfo(
-            "Node " + self.node_name + " connected to" + high_accuracy_service
-        )
-        self.trigger_d435i_high_accuracy_mode_service = rospy.ServiceProxy(
-            high_accuracy_service, Trigger
-        )
-
+        self._init_params()
+        self._init_subscribers()
+        self._init_services()
         rate = rospy.Rate(self.rate)
         while not rospy.is_shutdown():
             rate.sleep()
