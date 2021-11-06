@@ -11,6 +11,8 @@
     <!-- REDUCE RATE AND USE NUC TIME -->
     <node name="d435i_accel_correction" pkg="stretch_core" type="d435i_accel_correction" output="screen" />
 
+    <node name="d435i_configure" pkg="stretch_core" type="d435i_configure" output="screen">
+
     <!-- Static tf for cam 2 -->
     <node pkg="tf" type="static_transform_publisher" name="link1_broadcaster" args="-0.025 0.041 0.046 0.686 0.727 -0.016 -0.009 link_aruco_top_wrist $(arg camera_2)_color_optical_frame 100" />
 
