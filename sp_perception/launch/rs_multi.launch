@@ -5,7 +5,7 @@
     <arg name="camera_2"         default="gripper_camera"/>
     <arg name="tf_prefix_1"     default="$(arg camera_1)"/>
     <arg name="tf_prefix_2"     default="$(arg camera_2)"/>
-    <arg name="initial_reset"   default="false"/>
+    <arg name="initial_reset"   default="true"/>
     <!-- <arg name="reconnect_timeout"     default="6.0"/> -->
 
     <!-- REDUCE RATE AND USE NUC TIME -->
