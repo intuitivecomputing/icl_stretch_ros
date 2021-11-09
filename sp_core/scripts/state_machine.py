@@ -50,7 +50,7 @@ class StateMachineNode(hm.HelloNode):
         self.wrist_position = None
         self.lift_position = None
 
-        self.shelf_goal = ([0.0, 0.1, 0.0], 0.0)
+        self.shelf_goal = ([0.0, 0.0, 0.0], 0.0)
         self.workstation_goal = ([1.3, 2.4, 0.0], 1.57)
         self.marker_list = [80]
 
@@ -120,47 +120,15 @@ class StateMachineNode(hm.HelloNode):
         )
         return mat
 
-    def main(self):
-        hm.HelloNode.main(
-            self,
-            "sp_state_machine",
-            "sp_state_machine",
-        )
-
-        self.vis_marker_publisher.publish(self.vis_marker_array)
-
-        self.joint_states_subscriber = rospy.Subscriber(
-            "/stretch/joint_states", JointState, self.joint_states_callback
-        )
-
-        service_name = "/switch_to_position_mode"
-        rospy.wait_for_service(service_name)
-        rospy.loginfo(
-            f"Node {self.node_name} connected to {service_name} service."
-        )
-        self.switch_to_position_mode_service = rospy.ServiceProxy(
-            service_name, Trigger
-        )
-
-        # This rate determines how quickly the head pans back and forth.
-        # rate = rospy.Rate(5)
-        # while not rospy.is_shutdown():
-        #     if look_around:
-        #         self.look_around_callback()
-        #     rate.sleep()
-
-        sm_root = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
-        with sm_root:
-            # StateMachine.add(
-            #     "CALIBRATE",
-            #     ServiceState("/calibrate_the_robot", Trigger),
-            #     transitions={"succeeded": "PRESEARCH"},
-            # )
+    def grasp_fsm(self):
+        sm = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
+        with sm:
             StateMachine.add(
                 "PRESEARCH",
                 PreSearchState(self),
                 transitions={
                     "succeeded": "SEARCH_MARKERS",
+                    "aborted": "PRESEARCH",
                 },
             )
             StateMachine.add(
@@ -194,100 +162,147 @@ class StateMachineNode(hm.HelloNode):
                 "GRASP",
                 GraspState(self),
                 transitions={
-                    "succeeded": "succeeded",
+                    "succeeded": "POST_GRASP",
                 },
                 remapping={
                     "target": "target",
                     "target_frame": "target_frame",
                 },
             )
+            StateMachine.add(
+                "POST_GRASP",
+                PostGraspState(self),
+                transitions={
+                    "succeeded": "succeeded",
+                },
+            )
+        return sm
+
+    def generate_fsm(self):
+        sm = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
+        with sm:
+            StateMachine.add(
+                "CALIBRATE",
+                ServiceState("/calibrate_the_robot", Trigger),
+                transitions={"succeeded": "MODE_POSITION"},
+            )
+            StateMachine.add(
+                "MODE_POSITION",
+                ServiceState("/switch_to_position_mode", Trigger),
+                transitions={"succeeded": "GLOBAL_LOCALIZATION"},
+            )
+            StateMachine.add(
+                "GLOBAL_LOCALIZATION",
+                ServiceState("/funmap/trigger_global_localization", Trigger),
+                transitions={"succeeded": "GOTO_SHELF"},
+            )
+            StateMachine.add(
+                "GOTO_SHELF",
+                SimpleActionState(
+                    "/move_base",
+                    MoveBaseAction,
+                    goal=self.make_move_base_goal(*self.shelf_goal),
+                ),
+                transitions={
+                    "succeeded": "LOCAL_LOCALIZATION",
+                    "aborted": "GLOBAL_LOCALIZATION",
+                },
+            )
+            StateMachine.add(
+                "LOCAL_LOCALIZATION",
+                ServiceState("/funmap/trigger_local_localization", Trigger),
+                transitions={
+                    "succeeded": "ALIGN",  # "GOTO_SHELF_ADJUST",
+                    "aborted": "GLOBAL_LOCALIZATION",
+                },
+            )
             # StateMachine.add(
-            #     "GOTO_SHELF",
+            #     "GOTO_SHELF_ADJUST",
             #     SimpleActionState(
             #         "/move_base",
             #         MoveBaseAction,
             #         goal=self.make_move_base_goal(*self.shelf_goal),
             #     ),
             #     transitions={
-            #         "succeeded": "LOCAL_LOCALIZATION",
+            #         "succeeded": "LOCAL_LOCALIZATION_2",
+            #         "aborted": "GLOBAL_LOCALIZATION",
             #     },
             # )
             # StateMachine.add(
-            #     "LOCAL_LOCALIZATION",
+            #     "LOCAL_LOCALIZATION_2",
             #     ServiceState("/funmap/trigger_local_localization", Trigger),
             #     transitions={
             #         "succeeded": "ALIGN",
+            #         "aborted": "GLOBAL_LOCALIZATION",
             #     },
             # )
+            StateMachine.add(
+                "ALIGN",
+                AlignState(self),
+                transitions={
+                    "succeeded": "GRASP_SUB",
+                    "aborted": "LOCAL_LOCALIZATION",
+                },
+            )
 
-            # StateMachine.add(
-            #     "ALIGN",
-            #     AlignState(self),
-            #     # transitions={
-            #     #     "succeeded": "GOTO_WORSTATION",
-            #     # },
-            # )
-        # with sm_root:
-        #     StateMachine.add(
-        #         "CALIBRATE",
-        #         ServiceState("/calibrate_the_robot", Trigger),
-        #         transitions={"succeeded": "MODE_POSITION"},
-        #     )
-        #     StateMachine.add(
-        #         "MODE_POSITION",
-        #         ServiceState("/switch_to_position_mode", Trigger),
-        #         transitions={"succeeded": "GLOBAL_LOCALIZATION"},
-        #     )
-        #     StateMachine.add(
-        #         "GLOBAL_LOCALIZATION",
-        #         ServiceState("/funmap/trigger_global_localization", Trigger),
-        #         transitions={"succeeded": "GOTO_SHELF"},
-        #     )
-        #     StateMachine.add(
-        #         "GOTO_SHELF",
-        #         SimpleActionState(
-        #             "/move_base",
-        #             MoveBaseAction,
-        #             goal=self.make_move_base_goal(*self.shelf_goal),
-        #         ),
-        #         transitions={
-        #             "succeeded": "LOCAL_LOCALIZATION",
-        #             "aborted": "GLOBAL_LOCALIZATION",
-        #         },
-        #     )
-        #     StateMachine.add(
-        #         "LOCAL_LOCALIZATION",
-        #         ServiceState("/funmap/trigger_local_localization", Trigger),
-        #         transitions={
-        #             "succeeded": "ALIGN",
-        #             "aborted": "GLOBAL_LOCALIZATION",
-        #         },
-        #     )
+            grasp_sub_sm = self.grasp_fsm()
+            StateMachine.add(
+                "GRASP_SUB",
+                grasp_sub_sm,
+                transitions={
+                    "succeeded": "POST_GRASP_LOCAL_LOCALIZATION",
+                    "aborted": "LOCAL_LOCALIZATION",
+                },
+            )
+            StateMachine.add(
+                "POST_GRASP_LOCAL_LOCALIZATION",
+                ServiceState("/funmap/trigger_local_localization", Trigger),
+                transitions={
+                    "succeeded": "GOTO_WORKSTATION",
+                    "aborted": "GLOBAL_LOCALIZATION",
+                },
+            )
+            StateMachine.add(
+                "GOTO_WORKSTATION",
+                SimpleActionState(
+                    "/move_base",
+                    MoveBaseAction,
+                    goal=self.make_move_base_goal(*self.workstation_goal),
+                ),
+                # transitions={"succeeded": "END"},
+            )
 
-        #     StateMachine.add(
-        #         "ALIGN",
-        #         AlignState(self),
-        #         transitions={
-        #             "succeeded": "GOTO_WORSTATION",
-        #             "aborted": "GLOBAL_LOCALIZATION",
-        #         },
-        #     )
+        return sm
 
-        #     StateMachine.add(
-        #         "GOTO_WORSTATION",
-        #         SimpleActionState(
-        #             "/move_base",
-        #             MoveBaseAction,
-        #             goal=self.make_move_base_goal(*self.workstation_goal),
-        #         ),
-        #         # transitions={"succeeded": "END"},
-        #     )
+    def main(self):
+        hm.HelloNode.main(
+            self,
+            "sp_state_machine",
+            "sp_state_machine",
+        )
 
-        sis = IntrospectionServer("state_machine", sm_root, "/state_machine")
+        self.vis_marker_publisher.publish(self.vis_marker_array)
+
+        self.joint_states_subscriber = rospy.Subscriber(
+            "/stretch/joint_states", JointState, self.joint_states_callback
+        )
+
+        service_name = "/switch_to_position_mode"
+        rospy.wait_for_service(service_name)
+        rospy.loginfo(
+            f"Node {self.node_name} connected to {service_name} service."
+        )
+        self.switch_to_position_mode_service = rospy.ServiceProxy(
+            service_name, Trigger
+        )
+
+        sm = self.generate_fsm()
+
+        sis = IntrospectionServer("state_machine", sm, "/state_machine")
         sis.start()
 
         # Execute SMACH plan
-        outcome = sm_root.execute()
+        outcome = sm.execute()
 
         # Wait for ctrl-c to stop the application
         rospy.spin()
