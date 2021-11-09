@@ -1,7 +1,7 @@
 <launch>
 
   <arg name="debug_directory" value="$(env HELLO_FLEET_PATH)/debug/"/>
-  <arg name="map_yaml"        default="$(env HELLO_FLEET_PATH)/debug/merged_maps/merged_map_20211106004858" doc="previously captured FUNMAP map (optional)" />
+  <arg name="map_yaml"        default="$(env HELLO_FLEET_PATH)/debug/merged_maps/merged_map_20211109010620" doc="previously captured FUNMAP map (optional)" />
 
 
   <!-- Launch multiple REALSENSE D435i -->
