@@ -57,7 +57,7 @@ class StateMachineNode(hm.HelloNode):
         self.vis_marker_array = MarkerArray()
 
         self.vis_marker_publisher = rospy.Publisher(
-            "debug_vis_markers", MarkerArray
+            "debug_vis_markers", MarkerArray, queue_size=10
         )
 
     def make_move_base_goal(self, position, orientation):
@@ -97,7 +97,7 @@ class StateMachineNode(hm.HelloNode):
         # marker.lifetime = rospy.Duration.from_sec(duration)
 
         if len(self.vis_marker_array.markers) >= 2:
-            self.vis_marker_array.pop(0)
+            self.vis_marker_array.markers.pop(0)
         self.vis_marker_array.markers.append(marker)
 
         self.vis_marker_publisher.publish(self.vis_marker_array)
@@ -125,6 +125,10 @@ class StateMachineNode(hm.HelloNode):
         )
         return stamped_transform
 
+    # def lookup_transform(self, base_frame, target_frame):
+    #     hm.get_p1_to_p2_matrix(target_frame, base_frame, self.tf2_buffer)
+    #     return stamped_transform
+
     def main(self):
         hm.HelloNode.main(
             self,
@@ -138,6 +142,15 @@ class StateMachineNode(hm.HelloNode):
             "/stretch/joint_states", JointState, self.joint_states_callback
         )
 
+        service_name = "/switch_to_position_mode"
+        rospy.wait_for_service(service_name)
+        rospy.loginfo(
+            f"Node {self.node_name} connected to {service_name} service."
+        )
+        self.switch_to_position_mode_service = rospy.ServiceProxy(
+            service_name, Trigger
+        )
+
         # This rate determines how quickly the head pans back and forth.
         # rate = rospy.Rate(5)
         # while not rospy.is_shutdown():
@@ -147,6 +160,11 @@ class StateMachineNode(hm.HelloNode):
 
         sm_root = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
         with sm_root:
+            # StateMachine.add(
+            #     "CALIBRATE",
+            #     ServiceState("/calibrate_the_robot", Trigger),
+            #     transitions={"succeeded": "PRESEARCH"},
+            # )
             StateMachine.add(
                 "PRESEARCH",
                 PreSearchState(self),
@@ -174,9 +192,7 @@ class StateMachineNode(hm.HelloNode):
             StateMachine.add(
                 "DETECT",
                 DetectState(self),
-                transitions={
-                    "succeeded": "GRASP",
-                },
+                transitions={"succeeded": "GRASP", "aborted": "aborted"},
                 remapping={
                     "detected_marker_id": "detected_marker_id",
                     "target": "target",

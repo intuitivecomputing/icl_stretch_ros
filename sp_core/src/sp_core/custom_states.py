@@ -95,7 +95,7 @@ class PreSearchState(smach.State):
         self.node.move_to_pose(pose)
         pose = {"joint_lift": 0.9}
         self.node.move_to_pose(pose)
-        pose = {"wrist_extension": 0.3}
+        pose = {"wrist_extension": 0.1}
         self.node.move_to_pose(pose)
         rospy.sleep(0.5)
         rospy.loginfo(f"[{self.__class__.__name__}]")
@@ -209,8 +209,12 @@ class PreDetectState(smach.State):
         )
         # target_frame in cam_frame
         translation = rnp.numpify(stamped_transform.transform)[:3, 3]
+        rospy.loginfo(
+            f"[{self.__class__.__name__}] fiducial_{marker_id} at {translation} in {cam_frame_id}"
+        )
         camera_tolerance = (0.05, 0.05, 0.5)
-        if translation[2] - camera_tolerance[2] >= 0.02:
+        if np.abs(translation[2] - camera_tolerance[2]) >= 0.02:
+            print(self.node.wrist_position)
             pose = {
                 "wrist_extension": self.node.wrist_position
                 + (translation[2] - camera_tolerance[2])
@@ -224,7 +228,6 @@ class PreDetectState(smach.State):
             }
             self.node.move_to_pose(pose)
 
-        rospy.loginfo(f"[{self.__class__.__name__}]")
         return "succeeded"
 
 
@@ -232,12 +235,12 @@ class DetectState(smach.State):
     def __init__(self, node):
         smach.State.__init__(
             self,
-            outcomes=["succeeded"],
+            outcomes=["succeeded", "aborted"],
             input_keys=["detected_marker_id"],
             output_keys=["target", "target_frame"],
         )
         self.node = node
-        # self.cv_bridge = CvBridge()
+        self.min_cloud_points = 15
 
     def execute(self, userdata):
         marker_id = userdata.detected_marker_id
@@ -246,6 +249,8 @@ class DetectState(smach.State):
         # move gripper to pregrasp position
         pose = {"joint_wrist_yaw": 0.0}
         self.node.move_to_pose(pose)
+        pose = {"gripper_aperture": 0.125}
+        self.node.move_to_pose(pose)
 
         cloud_msg = rospy.wait_for_message(
             "/wrist_camera/depth/color/points", PointCloud2
@@ -253,7 +258,6 @@ class DetectState(smach.State):
         cloud_frame = cloud_msg.header.frame_id
         point_cloud = rnp.numpify(cloud_msg)
         xyz = rnp.point_cloud2.get_xyz_points(point_cloud)  # (N,3)
-        print(xyz.shape)
         stamped_transform = self.node.lookup_transform(
             cloud_frame,
             target_frame_id,
@@ -275,8 +279,10 @@ class DetectState(smach.State):
             else:
                 cloud_mask.append(False)
         filtered_cloud = xyz[cloud_mask]
+        if len(filtered_cloud) <= self.min_cloud_points:
+            rospy.loginfo(f"[{self.__class__.__name__}] too few points")
+            return "aborted"
         center_of_mass = np.average(filtered_cloud, axis=0)
-
         rospy.loginfo(
             f"[{self.__class__.__name__}] detected COM at {center_of_mass} in {cloud_frame}"
         )
@@ -323,17 +329,23 @@ class GraspState(smach.State):
         )[:3]
         grasp_center_in_base_frame = grasp_to_base_mat[:3, 3]
         translation = grasp_target_in_base_frame - grasp_center_in_base_frame
+        # print(grasp_target_in_base_frame - grasp_center_in_base_frame)
         # move in x / forward
         self.node.move_base.forward(translation[0], detect_obstacles=False)
         # move z / lift
-        pose = {"joint_lift": translation[2]}
+        pose = {"joint_lift": self.node.lift_position + translation[2]}
         self.node.move_to_pose(pose)
         # move y / -side
-        pose = {"wrist_extension": -translation[1]}
+        pose = {"wrist_extension": self.node.wrist_position - translation[1]}
         self.node.move_to_pose(pose)
 
         rospy.loginfo(
-            f"[{self.__class__.__name__}] grasping at {translation} in {base_frame}"
+            f"[{self.__class__.__name__}] grasping at {translation} in {grasp_center_frame}"
         )
-        self.node.update_vis_markers(base_frame, translation)
+        rospy.sleep(1.0)
+        pose = {"gripper_aperture": 0.0}
+        self.node.move_to_pose(pose)
+
+        # self.node.update_vis_markers(base_frame, grasp_target_in_base_frame)
+        # self.node.update_vis_markers(base_frame, grasp_center_in_base_frame)
         return "succeeded"
