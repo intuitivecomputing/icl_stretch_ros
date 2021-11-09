@@ -114,20 +114,11 @@ class StateMachineNode(hm.HelloNode):
         )
         self.lift_position = lift_position
 
-    def lookup_transform(self, base_frame, target_frame):
-        lookup_time = rospy.Time(0)  # return most recent transform
-        timeout_ros = rospy.Duration(0.1)
-        stamped_transform = self.tf2_buffer.lookup_transform(
-            base_frame,
-            target_frame,
-            lookup_time,
-            timeout_ros,
+    def lookup_transform_mat(self, base_frame, target_frame):
+        mat, _ = hm.get_p1_to_p2_matrix(
+            target_frame, base_frame, self.tf2_buffer
         )
-        return stamped_transform
-
-    # def lookup_transform(self, base_frame, target_frame):
-    #     hm.get_p1_to_p2_matrix(target_frame, base_frame, self.tf2_buffer)
-    #     return stamped_transform
+        return mat
 
     def main(self):
         hm.HelloNode.main(

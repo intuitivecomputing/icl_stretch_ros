@@ -203,18 +203,18 @@ class PreDetectState(smach.State):
         target_frame_id = f"fiducial_{marker_id}"
         base_frame_id = "base_link"
 
-        stamped_transform = self.node.lookup_transform(
+        # target_frame in cam_frame
+        translation = self.node.lookup_transform_mat(
             cam_frame_id,
             target_frame_id,
-        )
-        # target_frame in cam_frame
-        translation = rnp.numpify(stamped_transform.transform)[:3, 3]
+        )[:3, 3]
+
         rospy.loginfo(
             f"[{self.__class__.__name__}] fiducial_{marker_id} at {translation} in {cam_frame_id}"
         )
         camera_tolerance = (0.05, 0.05, 0.5)
         if np.abs(translation[2] - camera_tolerance[2]) >= 0.02:
-            print(self.node.wrist_position)
+            # print(self.node.wrist_position)
             pose = {
                 "wrist_extension": self.node.wrist_position
                 + (translation[2] - camera_tolerance[2])
@@ -258,12 +258,12 @@ class DetectState(smach.State):
         cloud_frame = cloud_msg.header.frame_id
         point_cloud = rnp.numpify(cloud_msg)
         xyz = rnp.point_cloud2.get_xyz_points(point_cloud)  # (N,3)
-        stamped_transform = self.node.lookup_transform(
+        # target_frame in cloud_frame
+        translation = self.node.lookup_transform_mat(
             cloud_frame,
             target_frame_id,
-        )
-        # target_frame in cam_frame
-        translation = rnp.numpify(stamped_transform.transform)[:3, 3]
+        )[:3, 3]
+
         marker_coord = translation + [0.03, 0.03, -0.03]
         detect_box = (0.12, 0.12)
 
@@ -307,18 +307,16 @@ class GraspState(smach.State):
         target_frame = userdata.target_frame
         grasp_center_frame = "link_grasp_center"
         base_frame = "base_link"
+        wrist_extension_offset_m = 0.015
 
-        target_to_base_mat = rnp.numpify(
-            self.node.lookup_transform(
-                base_frame,
-                target_frame,
-            ).transform
+        target_to_base_mat = self.node.lookup_transform_mat(
+            base_frame,
+            target_frame,
         )
-        grasp_to_base_mat = rnp.numpify(
-            self.node.lookup_transform(
-                base_frame,
-                grasp_center_frame,
-            ).transform
+
+        grasp_to_base_mat = self.node.lookup_transform_mat(
+            base_frame,
+            grasp_center_frame,
         )
 
         grasp_target = np.array([0.0, 0.0, 0.0, 1.0])
@@ -336,7 +334,11 @@ class GraspState(smach.State):
         pose = {"joint_lift": self.node.lift_position + translation[2]}
         self.node.move_to_pose(pose)
         # move y / -side
-        pose = {"wrist_extension": self.node.wrist_position - translation[1]}
+        pose = {
+            "wrist_extension": self.node.wrist_position
+            - translation[1]
+            + wrist_extension_offset_m
+        }
         self.node.move_to_pose(pose)
 
         rospy.loginfo(
