@@ -6,6 +6,7 @@ import ros_numpy as rnp
 import rospy
 from fiducial_msgs.msg import FiducialTransformArray, FiducialTransform
 from sensor_msgs.msg import Image, PointCloud2
+from std_srvs.srv import Trigger, TriggerRequest
 
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -84,7 +85,7 @@ class PreSearchState(smach.State):
     def __init__(self, node):
         smach.State.__init__(
             self,
-            outcomes=["succeeded"],
+            outcomes=["succeeded", "aborted"],
         )
         self.node = node
 
@@ -130,6 +131,7 @@ class PreMoveState(smach.State):
         self.node = node
 
     def execute(self, userdata):
+        self.node.switch_to_position_mode_service(TriggerRequest())
         pose = {"joint_gripper_finger_left": -0.15}
         self.node.move_to_pose(pose)
         pose = {"wrist_extension": 0.01}
@@ -144,7 +146,7 @@ class PreMoveState(smach.State):
         # avoid blocking the laser range finder with the gripper
         pose = {"joint_lift": 0.22}
         self.node.move_to_pose(pose)
-        rospy.loginfo(f"[{self.__class__.__name__}]")
+        rospy.loginfo(f"[{self.__class__.__name__}] Stow robot")
         return "succeeded"
 
 
@@ -246,11 +248,18 @@ class DetectState(smach.State):
         marker_id = userdata.detected_marker_id
         target_frame_id = f"fiducial_{marker_id}"
 
+        # set wrist cam to high accuracy
+        rospy.set_param("/wrist_camera/stereo_module/visual_prese", "3")
+
         # move gripper to pregrasp position
         pose = {"joint_wrist_yaw": 0.0}
         self.node.move_to_pose(pose)
         pose = {"gripper_aperture": 0.125}
         self.node.move_to_pose(pose)
+        rospy.loginfo(
+            f"[{self.__class__.__name__}]  wait 2sec for sensor to stabalize"
+        )
+        rospy.sleep(2.0)
 
         cloud_msg = rospy.wait_for_message(
             "/wrist_camera/depth/color/points", PointCloud2
@@ -290,6 +299,9 @@ class DetectState(smach.State):
         userdata.target_frame = cloud_frame
 
         self.node.update_vis_markers(cloud_frame, center_of_mass)
+
+        # set wrist cam to default
+        rospy.set_param("/wrist_camera/stereo_module/visual_prese", "1")
         return "succeeded"
 
 
@@ -307,7 +319,8 @@ class GraspState(smach.State):
         target_frame = userdata.target_frame
         grasp_center_frame = "link_grasp_center"
         base_frame = "base_link"
-        wrist_extension_offset_m = 0.015
+        wrist_extension_offset_m = 0.03
+        forward_offset_m = 0.0  # 0.02
 
         target_to_base_mat = self.node.lookup_transform_mat(
             base_frame,
@@ -329,7 +342,9 @@ class GraspState(smach.State):
         translation = grasp_target_in_base_frame - grasp_center_in_base_frame
         # print(grasp_target_in_base_frame - grasp_center_in_base_frame)
         # move in x / forward
-        self.node.move_base.forward(translation[0], detect_obstacles=False)
+        self.node.move_base.forward(
+            translation[0] + forward_offset_m, detect_obstacles=False
+        )
         # move z / lift
         pose = {"joint_lift": self.node.lift_position + translation[2]}
         self.node.move_to_pose(pose)
@@ -345,9 +360,36 @@ class GraspState(smach.State):
             f"[{self.__class__.__name__}] grasping at {translation} in {grasp_center_frame}"
         )
         rospy.sleep(1.0)
-        pose = {"gripper_aperture": 0.0}
+        pose = {"gripper_aperture": -0.1}
         self.node.move_to_pose(pose)
 
         # self.node.update_vis_markers(base_frame, grasp_target_in_base_frame)
         # self.node.update_vis_markers(base_frame, grasp_center_in_base_frame)
+        return "succeeded"
+
+
+class PostGraspState(smach.State):
+    def __init__(self, node):
+        smach.State.__init__(
+            self,
+            outcomes=["succeeded"],
+        )
+        self.node = node
+
+    def execute(self, userdata):
+        rospy.sleep(1.0)
+        post_grasp_lift_m = 0.01
+        print(self.node.lift_position)
+        pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
+        self.node.move_to_pose(pose)
+        rospy.sleep(0.5)
+        pose = {"wrist_extension": 0.1}
+        self.node.move_to_pose(pose)
+        pose = {"joint_wrist_yaw": 3.6}
+        self.node.move_to_pose(pose)
+
+        pose = {"joint_lift": 0.25}
+        self.node.move_to_pose(pose)
+        pose = {"gripper_aperture": 0.125}
+        self.node.move_to_pose(pose)
         return "succeeded"
