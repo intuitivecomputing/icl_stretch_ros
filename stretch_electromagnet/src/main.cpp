@@ -10,7 +10,7 @@ ros::NodeHandle nh;
 using std_srvs::SetBool;
 using std_srvs::Trigger;
 
-int PIN = 3;
+int PIN = 9; // D9 on nano
 void callback(const SetBool::Request &req, SetBool::Response &res)
 {
   if (req.data)
@@ -34,7 +34,6 @@ void triggerCallback(const Trigger::Request &req, Trigger::Response &res)
 
 ros::ServiceServer<SetBool::Request, SetBool::Response> server("magnet", &callback);
 ros::ServiceServer<Trigger::Request, Trigger::Response> server_trigger("magnet_toggle", &triggerCallback);
-
 
 void setup()
 {
