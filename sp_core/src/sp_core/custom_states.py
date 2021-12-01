@@ -39,6 +39,34 @@ def prepare_gripper(node):
     node.move_to_pose(pose)
 
 
+class WaitForOrderState(smach.State):
+    def __init__(self, node):
+        smach.State.__init__(self, outcomes=["start", "idle"])
+        self.node = node
+
+    def execute(self, ud):
+        if len(self.node.marker_list) != 0:
+            rospy.loginfo(
+                f"[{self.__class__.__name__}] Order received: {self.node.marker_list}"
+            )
+            if self.node.is_start:
+                rospy.loginfo(
+                    f"[{self.__class__.__name__}] Start signal received."
+                )
+                self.node.is_start = False
+                return "start"
+            else:
+                rospy.loginfo(
+                    f"[{self.__class__.__name__}] Waiting for start signal."
+                )
+        else:
+            rospy.loginfo(
+                f"[{self.__class__.__name__}] Waiting for robot order."
+            )
+        rospy.sleep(1.5)
+        return "idle"
+
+
 class GetPoseState(smach.State):
     def __init__(self, node):
         smach.State.__init__(
@@ -249,7 +277,7 @@ class DetectState(smach.State):
         target_frame_id = f"fiducial_{marker_id}"
 
         # set wrist cam to high accuracy
-        rospy.set_param("/wrist_camera/stereo_module/visual_prese", "3")
+        rospy.set_param("/wrist_camera/stereo_module/visual_preset", "3")
 
         # move gripper to pregrasp position
         pose = {"joint_wrist_yaw": 0.0}
@@ -301,7 +329,7 @@ class DetectState(smach.State):
         self.node.update_vis_markers(cloud_frame, center_of_mass)
 
         # set wrist cam to default
-        rospy.set_param("/wrist_camera/stereo_module/visual_prese", "1")
+        rospy.set_param("/wrist_camera/stereo_module/visual_preset", "1")
         return "succeeded"
 
 
@@ -368,6 +396,74 @@ class GraspState(smach.State):
         return "succeeded"
 
 
+class MagnetState(smach.State):
+    def __init__(self, node):
+        smach.State.__init__(
+            self,
+            outcomes=["succeeded"],
+            input_keys=["target", "target_frame"],
+        )
+        self.node = node
+
+    def execute(self, userdata):
+        target = userdata.target
+        target_frame = userdata.target_frame
+        grasp_center_frame = "link_magnet"
+        base_frame = "base_link"
+        wrist_extension_offset_m = 0.0
+        forward_offset_m = 0.0  # 0.02
+
+        pose = {"joint_wrist_yaw": 1.57}
+        self.node.move_to_pose(pose)
+
+        target_to_base_mat = self.node.lookup_transform_mat(
+            base_frame,
+            target_frame,
+        )
+
+        grasp_to_base_mat = self.node.lookup_transform_mat(
+            base_frame,
+            grasp_center_frame,
+        )
+
+        grasp_target = np.array([0.0, 0.0, 0.0, 1.0])
+        grasp_target[:3] = target
+        # target in base frame
+        grasp_target_in_base_frame = np.matmul(
+            target_to_base_mat, grasp_target
+        )[:3]
+        grasp_center_in_base_frame = grasp_to_base_mat[:3, 3]
+        translation = grasp_target_in_base_frame - grasp_center_in_base_frame
+        # print(grasp_target_in_base_frame - grasp_center_in_base_frame)
+        # move in x / forward
+        self.node.move_base.forward(
+            translation[0] + forward_offset_m, detect_obstacles=False
+        )
+        # move z / lift
+        pose = {"joint_lift": self.node.lift_position + translation[2]}
+        self.node.move_to_pose(pose)
+        # move y / -side
+        pose = {
+            "wrist_extension": self.node.wrist_position
+            - translation[1]
+            + wrist_extension_offset_m
+        }
+        self.node.move_to_pose(pose)
+
+        rospy.loginfo(
+            f"[{self.__class__.__name__}] grasping at {translation} in {grasp_center_frame}"
+        )
+
+        self.node.trigger_magnet_service(TriggerRequest())
+        rospy.sleep(1.0)
+        # pose = {"gripper_aperture": -0.1}
+        # self.node.move_to_pose(pose)
+
+        # self.node.update_vis_markers(base_frame, grasp_target_in_base_frame)
+        # self.node.update_vis_markers(base_frame, grasp_center_in_base_frame)
+        return "succeeded"
+
+
 class PostGraspState(smach.State):
     def __init__(self, node):
         smach.State.__init__(
@@ -392,4 +488,34 @@ class PostGraspState(smach.State):
         self.node.move_to_pose(pose)
         pose = {"gripper_aperture": 0.125}
         self.node.move_to_pose(pose)
+        return "succeeded"
+
+
+class PostMagnetState(smach.State):
+    def __init__(self, node):
+        smach.State.__init__(
+            self,
+            outcomes=["succeeded"],
+        )
+        self.node = node
+
+    def execute(self, userdata):
+        rospy.sleep(1.0)
+        post_grasp_lift_m = 0.01
+        print(self.node.lift_position)
+        pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
+        self.node.move_to_pose(pose)
+        rospy.sleep(0.5)
+        pose = {"wrist_extension": 0.1}
+        self.node.move_to_pose(pose)
+        pose = {"joint_wrist_yaw": -1.57}
+        self.node.move_to_pose(pose)
+
+        pose = {"joint_lift": 0.25}
+        self.node.move_to_pose(pose)
+
+        self.node.trigger_magnet_service(TriggerRequest())
+        rospy.sleep(1.0)
+        # pose = {"gripper_aperture": 0.125}
+        # self.node.move_to_pose(pose)
         return "succeeded"

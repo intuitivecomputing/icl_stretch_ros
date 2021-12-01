@@ -1,0 +1,61 @@
+<launch>
+    <arg name="serial_no_1"     default="031522070880"/>
+    <arg name="serial_no_2"     default="746112060889"/>
+    <arg name="camera_1"         default="camera"/>		
+    <arg name="camera_2"         default="wrist_camera"/>
+    <arg name="tf_prefix_1"     default="$(arg camera_1)"/>
+    <arg name="tf_prefix_2"     default="$(arg camera_2)"/>
+    <arg name="initial_reset"   default="true"/>
+    <!-- <arg name="reconnect_timeout"     default="6.0"/> -->
+
+    <!-- REDUCE RATE AND USE NUC TIME -->
+    <node name="d435i_accel_correction" pkg="stretch_core" type="d435i_accel_correction" output="screen" />
+
+    <node name="d435i_configure" pkg="stretch_core" type="d435i_configure" output="screen">
+        <!--<param name="initial_mode" type="string" value="Default"/>-->
+        <param name="initial_mode" type="string" value="High Accuracy"/>
+    </node>
+
+    <!-- REALSENSE D435i -->
+    <include file="$(find sp_perception)/launch/d435i_basic.launch" pass_all_args="true">
+        <!--
+        HIGHEST RESOLUTION, but also has the highest minimum depth
+        (280mm Min-Z) below which objects generate bad noise, such as
+        when the arm and gripper are raised close to the camera.
+        -->
+        <arg name="depth_width" value="1280"/>
+        <arg name="depth_height" value="720"/>
+        <arg name="color_width" value="1280"/>
+        <arg name="color_height" value="720"/>
+        <arg name="serial_no"     value="$(arg serial_no_1)"/>
+        <arg name="camera"    value="$(arg camera_1)"/>
+        <!-- <arg name="tf_prefix" value="$(arg tf_prefix_1)"/> -->
+        <arg name="initial_reset"         value="$(arg initial_reset)"/>
+        <!-- <arg name="reconnect_timeout"     value="$(arg reconnect_timeout)"/> -->
+
+        <arg name="enable_accel" value="true"/>
+    </include>
+
+    <!-- REALSENSE D435i -->
+    <include file="$(find sp_perception)/launch/d435i_basic.launch" pass_all_args="true">
+        <!--
+	LOWEST RESOLUTION, but also has the lowest minimum depth
+	(105mm Min-Z) below which objects generate bad noise, such as
+	when the arm and gripper are raised close to the camera.
+    -->    
+        <!-- <arg name="depth_width" value="640"/>
+        <arg name="depth_height" value="480"/>
+        <arg name="color_width" value="640"/>
+        <arg name="color_height" value="480"/> -->
+        <arg name="depth_width" value="1280"/>
+        <arg name="depth_height" value="720"/>
+        <arg name="color_width" value="1280"/>
+        <arg name="color_height" value="720"/>
+        <arg name="serial_no"     value="$(arg serial_no_2)"/>
+        <arg name="camera"    value="$(arg camera_2)"/>
+        <!-- <arg name="tf_prefix" value="$(arg tf_prefix_2)"/> -->
+        <arg name="initial_reset"         value="$(arg initial_reset)"/>
+        <!-- <arg name="reconnect_timeout"     value="$(arg reconnect_timeout)"/> -->
+        <arg name="enable_accel" value="false"/>
+    </include>
+</launch>

@@ -11,6 +11,7 @@ import tf2_ros as tf
 import tf.transformations as tr
 
 from std_srvs.srv import Trigger, TriggerRequest
+from std_msgs.msg import Int16MultiArray
 from sensor_msgs.msg import JointState
 from control_msgs.msg import FollowJointTrajectoryGoal
 from trajectory_msgs.msg import JointTrajectoryPoint
@@ -33,6 +34,7 @@ import stretch_funmap.navigate as nv
 import stretch_funmap.manipulation_planning as mp
 
 from sp_core.custom_states import *
+from sp_msgs.srv import Order, OrderRequest, OrderResponse
 
 
 SHELF_GOAL_M = ([0.0, 0.1, 0.0], 0.0)
@@ -52,13 +54,72 @@ class StateMachineNode(hm.HelloNode):
 
         self.shelf_goal = ([0.0, 0.0, 0.0], 0.0)
         self.workstation_goal = ([1.3, 2.4, 0.0], 1.57)
-        self.marker_list = [80]
+        self.marker_list = []
+        self.is_start = False
 
         self.vis_marker_array = MarkerArray()
 
         self.vis_marker_publisher = rospy.Publisher(
             "debug_vis_markers", MarkerArray, queue_size=10
         )
+
+        self.current_order_publisher = rospy.Publisher(
+            "sp_sm/current_orders", Int16MultiArray, queue_size=10
+        )
+
+        self.receive_order_subscriber = rospy.Subscriber(
+            "sp_sm/post_orders", Int16MultiArray, self.receive_order_callback
+        )
+
+        self.trigger_magnet_service = rospy.ServiceProxy(
+            "/toggle_magnet", Trigger
+        )
+
+        self.trigger_clear_orders_service = rospy.Service(
+            "sp_sm/clear_orders",
+            Trigger,
+            self.trigger_clear_orders_service_callback,
+        )
+
+        self.trigger_start_orders_service = rospy.Service(
+            "sp_sm/start",
+            Trigger,
+            self.trigger_start_execution_service_callback,
+        )
+
+    def receive_order_callback(self, msg):
+        rospy.loginfo(f"{len(msg.data)} orders received: {msg.data}.")
+        for order in msg.data:
+            if not int(order) in self.marker_list:
+                self.marker_list.append(int(order))
+
+        curr_orders = Int16MultiArray()
+        curr_orders.data = self.marker_list
+        self.current_order_publisher.publish(curr_orders)
+
+    def trigger_clear_orders_service_callback(self, req):
+        res = OrderResponse()
+        res.success = True
+        res.message = "Orders cleared."
+        self.marker_list = [80]
+
+        curr_orders = Int16MultiArray()
+        curr_orders.data = self.marker_list
+        self.current_order_publisher.publish(curr_orders)
+
+        return res
+
+    def trigger_start_execution_service_callback(self, req):
+        res = OrderResponse()
+        res.success = True
+        res.message = "Execution start."
+        self.is_start = True
+
+        curr_orders = Int16MultiArray()
+        curr_orders.data = self.marker_list
+        self.current_order_publisher.publish(curr_orders)
+
+        return res
 
     def make_move_base_goal(self, position, orientation):
         goal = MoveBaseGoal()
@@ -158,9 +219,27 @@ class StateMachineNode(hm.HelloNode):
                     "target_frame": "target_frame",
                 },
             )
+            # StateMachine.add(
+            #     "GRASP",
+            #     GraspState(self),
+            #     transitions={
+            #         "succeeded": "POST_GRASP",
+            #     },
+            #     remapping={
+            #         "target": "target",
+            #         "target_frame": "target_frame",
+            #     },
+            # )
+            # StateMachine.add(
+            #     "POST_GRASP",
+            #     PostGraspState(self),
+            #     transitions={
+            #         "succeeded": "succeeded",
+            #     },
+            # )
             StateMachine.add(
                 "GRASP",
-                GraspState(self),
+                MagnetState(self),
                 transitions={
                     "succeeded": "POST_GRASP",
                 },
@@ -170,8 +249,13 @@ class StateMachineNode(hm.HelloNode):
                 },
             )
             StateMachine.add(
+                "TRIGGER_MAGNET",
+                ServiceState("/magnet_toggle", Trigger),
+                transitions={"succeeded": "POST_GRASP"},
+            )
+            StateMachine.add(
                 "POST_GRASP",
-                PostGraspState(self),
+                PostMagnetState(self),
                 transitions={
                     "succeeded": "succeeded",
                 },
@@ -194,7 +278,12 @@ class StateMachineNode(hm.HelloNode):
             StateMachine.add(
                 "GLOBAL_LOCALIZATION",
                 ServiceState("/funmap/trigger_global_localization", Trigger),
-                transitions={"succeeded": "GOTO_SHELF"},
+                transitions={"succeeded": "WAIT_FOR_ORDER"},
+            )
+            StateMachine.add(
+                "WAIT_FOR_ORDER",
+                WaitForOrderState(self),
+                transitions={"idle": "WAIT_FOR_ORDER", "start": "GOTO_SHELF"},
             )
             StateMachine.add(
                 "GOTO_SHELF",
@@ -292,6 +381,7 @@ class StateMachineNode(hm.HelloNode):
         rospy.loginfo(
             f"Node {self.node_name} connected to {service_name} service."
         )
+
         self.switch_to_position_mode_service = rospy.ServiceProxy(
             service_name, Trigger
         )
@@ -300,6 +390,9 @@ class StateMachineNode(hm.HelloNode):
 
         sis = IntrospectionServer("state_machine", sm, "/state_machine")
         sis.start()
+
+        # if self.is_start:
+        #     self.is_start = False
 
         # Execute SMACH plan
         outcome = sm.execute()

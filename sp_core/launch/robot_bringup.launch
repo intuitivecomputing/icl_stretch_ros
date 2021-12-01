@@ -7,6 +7,8 @@
   <!-- Launch multiple REALSENSE D435i -->
   <include file="$(find sp_perception)/launch/rs_multi.launch"></include>
   <!-- -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" /> 
+  <include file = "$(find sp_core)/launch/magnet.launch" />
 
   <!-- ARUCO MARKER DETECTOR -->
   <!-- <include file="$(find sp_perception)/launch/stretch_aruco.launch"></include> -->
@@ -45,7 +47,7 @@
     <!-- VISUALIZE -->
   <!-- <node name="rviz" pkg="rviz" type="rviz" output="screen" args="-d $(find sp_core)/config/rviz/sp.rviz" /> -->
   <!-- -->
-  
+
 
 
 </launch>
