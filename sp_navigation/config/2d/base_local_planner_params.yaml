@@ -31,11 +31,11 @@ TrajectoryPlannerROS:
   heading_lookahead: 0.325
   heading_scoring_timestep: 0.8
   heading_scoring: true
-  dwa: false
+  dwa: true
   # other
   oscillation_reset_dist: 0.05
   # debug
-  publish_cost_grid_pc: false
+  publish_cost_grid_pc: true
 
 DWAPlannerROS:
   #vel params
@@ -46,7 +46,7 @@ DWAPlannerROS:
   max_vel_y: 0  #diff drive
   min_vel_y: 0
   max_vel_theta: 1.5
-  min_vel_theta: 0.4
+  min_vel_theta: 0.2
 
   #accel params
   acc_lim_x: 0.7

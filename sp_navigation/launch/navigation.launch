@@ -1,11 +1,13 @@
 <launch>
 
-  <arg name="map_yaml"                doc="filepath to previously captured map (required)" default="/home/hello-robot/stretch_user/maps/test.yaml"/>
+  <arg name="map_yaml"                doc="filepath to previously captured map (required)" default="/home/hello-robot/stretch_user/maps/map_328.yaml"/>
   <arg name="rviz"     default="true" doc="whether to show Rviz" />
-  <include file="$(find sp_core)/launch/robot_nav_bringup.launch" />
-
   <!-- MAP SERVER -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_yaml)" />
+
+
+  <include file="$(find sp_core)/launch/robot_nav_bringup.launch" />
+
 
   <!-- LOCALIZATION -->
   <include file="$(find amcl)/examples/amcl_diff.launch" />
