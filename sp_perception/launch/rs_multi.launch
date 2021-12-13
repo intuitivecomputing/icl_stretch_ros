@@ -23,10 +23,15 @@
         (280mm Min-Z) below which objects generate bad noise, such as
         when the arm and gripper are raised close to the camera.
         -->
-        <arg name="depth_width" value="1280"/>
+        <!-- <arg name="depth_width" value="1280"/>
         <arg name="depth_height" value="720"/>
         <arg name="color_width" value="1280"/>
-        <arg name="color_height" value="720"/>
+        <arg name="color_height" value="720"/> -->
+        <arg name="depth_fps" value="15" />
+        <arg name="depth_width" value="848" />
+        <arg name="depth_height" value="480" />
+        <arg name="color_width" value="848" />
+        <arg name="color_height" value="480" />
         <arg name="serial_no"     value="$(arg serial_no_1)"/>
         <arg name="camera"    value="$(arg camera_1)"/>
         <!-- <arg name="tf_prefix" value="$(arg tf_prefix_1)"/> -->

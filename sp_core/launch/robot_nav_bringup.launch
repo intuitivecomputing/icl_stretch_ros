@@ -1,6 +1,10 @@
 <launch>
 	<!-- REALSENSE D435i -->
-	<include file="$(find sp_perception)/launch/rs.launch" pass_all_args="true"/>
+	<!-- <include file="$(find sp_perception)/launch/rs.launch" pass_all_args="true"/> -->
+	<!-- Launch multiple REALSENSE D435i -->
+	<include file="$(find sp_perception)/launch/rs_multi.launch"></include>
+	<!-- -->
+	
 	<!-- LASER RANGE FINDER -->
 	<include file="$(find sp_core)/launch/rplidar.launch" />
 	<!--  -->
