@@ -3,21 +3,12 @@
   <!-- laser_scan_matcher -->
   <node pkg="laser_scan_matcher" type="laser_scan_matcher_node" name="laser_scan_matcher_node" output="screen">
     <!-- <remap from="odom" to="odometry/filtered"/> -->
-    
-    <param name="max_iterations" value="10"/>
-    <!--<param name="fixed_frame" value="map"/>-->
-    <param name="fixed_frame" value="odom"/>
-    <param name="base_frame" value="base_laser_link"/>
+    <rosparam>
+      fixed_frame: odom
+      base_frame: base_link
+      publish_pose_stamped: true
 
-    <!-- "Maximum angular displacement between scans, in degrees" -->
-    <param name="max_angular_correction_deg" value="45.0"/>
-    <!-- <param name="max_angular_correction_deg" value="20.0"/> -->
-    <!-- "Maximum translation between scans (m)-->
-    <param name="max_linear_correction" value="0.5"/>
-    <!-- <param name="max_linear_correction" value="0.2"/> -->
-
-    <!-- <param name="use_imu" value="false"/> -->
-    <param name="publish_pose_stamped" value="true"/>
+    </rosparam>
 
   </node>
   <!-- -->
