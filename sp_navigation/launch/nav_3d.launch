@@ -8,13 +8,20 @@
     <arg name="move_base_config" value="3d" />
 
     <!-- Robot sensor topic mapping-->
-    <arg name="laser_topic" default="scan" />
+    <arg name="laser_topic" default="scan_filtered" />
     <arg name="pointcloud_topic" default="/camera/depth/color/points" />
     <arg name="cmd_vel_topic" default="/stretch/cmd_vel" />
     <arg name="odom_topic" default="/odom" />
     <arg name="odom_link" default="odom" />
     <arg name="base_link" default="base_link" />
 
+
+    <!-- <node pkg="leg_detector" type="leg_detector" name="leg_detector" args="scan:=scan $(find leg_detector)/config/trained_leg_detector.yaml" output="screen" >
+        <param name="fixed_frame" value="map"/>
+        <param name="leg_reliability_limit" value="0.6" type="double" />
+        </node>
+    <node name="velocity_tracker" pkg="people_velocity_tracker" type="tracker.py" respawn="true" /> -->
+    
     <!-- Launch Map Server -->
     <include file="$(find sp_navigation)/launch/navigation/map_server.launch">
         <!-- <arg name="map_name" value="$(find stretch_navigation)/resources/static_maps/2d/$(arg map).yaml" /> -->
@@ -29,9 +36,8 @@
 
     <!--- Launch AMCL (Laser Localization) -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
-        <!-- <rosparam file="$(find stretch_navigation)/resources/config/amcl.yaml" command="load" /> -->
         <rosparam file="$(find sp_navigation)/config/amcl.yaml" command="load" />
-        <remap from="/scan" to="/scan_filtered" />
+        <remap from="/scan" to="$(arg laser_topic)" />
     </node>
 
 
