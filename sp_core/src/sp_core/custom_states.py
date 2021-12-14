@@ -131,25 +131,6 @@ class PreSearchState(smach.State):
         return "succeeded"
 
 
-# class PreSearchState(smach.State):
-#     def __init__(self, node):
-#         smach.State.__init__(
-#             self,
-#             outcomes=["succeeded"],
-#         )
-#         self.node = node
-
-#     def execute(self, userdata):
-#         # max_wrist_extension_m = 0.5
-#         # gripper backwards stow
-#         pose = {"wrist_extension": 0.1}
-#         self.node.move_to_pose(pose)
-#         pose = {"joint_wrist_yaw": 0.0}
-#         self.node.move_to_pose(pose)
-#         rospy.loginfo(f"[{self.__class__.__name__}]")
-#         return "succeeded"
-
-
 class PreMoveState(smach.State):
     def __init__(self, node):
         smach.State.__init__(
@@ -176,16 +157,6 @@ class PreMoveState(smach.State):
         self.node.move_to_pose(pose)
         rospy.loginfo(f"[{self.__class__.__name__}] Stow robot")
         return "succeeded"
-
-
-# def get_robot_pose(tf_buffer, base_frame_id, target_frame_id):
-#     stamped_transform = self.tf_buffer.lookup_transform(
-#         base_frame_id, target_frame_id, rospy.Time(0), rospy.Duration(0.1)
-#     )
-#     trans_mat = rnp.numpify(stamped_transform)
-#     translation = trans_mat[:3, 3]
-#     rotation = tr.euler_from_matrix(trans_mat)
-#     return translation, rotation
 
 
 class SearchMarkersState(smach.State):
@@ -280,8 +251,8 @@ class DetectState(smach.State):
         rospy.set_param("/wrist_camera/stereo_module/visual_preset", "3")
 
         # move gripper to pregrasp position
-        pose = {"joint_wrist_yaw": 0.0}
-        self.node.move_to_pose(pose)
+        # pose = {"joint_wrist_yaw": 0.0}
+        # self.node.move_to_pose(pose)
         pose = {"gripper_aperture": 0.125}
         self.node.move_to_pose(pose)
         rospy.loginfo(
@@ -406,15 +377,15 @@ class MagnetState(smach.State):
         self.node = node
 
     def execute(self, userdata):
+        pose = {"joint_wrist_yaw": 1.57}
+        self.node.move_to_pose(pose)
+
         target = userdata.target
         target_frame = userdata.target_frame
         grasp_center_frame = "link_magnet"
         base_frame = "base_link"
-        wrist_extension_offset_m = 0.0
-        forward_offset_m = 0.0  # 0.02
-
-        pose = {"joint_wrist_yaw": 1.57}
-        self.node.move_to_pose(pose)
+        wrist_extension_offset_m = 0.05
+        forward_offset_m = 0.06
 
         target_to_base_mat = self.node.lookup_transform_mat(
             base_frame,
@@ -442,6 +413,7 @@ class MagnetState(smach.State):
         # move z / lift
         pose = {"joint_lift": self.node.lift_position + translation[2]}
         self.node.move_to_pose(pose)
+
         # move y / -side
         pose = {
             "wrist_extension": self.node.wrist_position

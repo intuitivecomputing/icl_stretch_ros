@@ -54,7 +54,7 @@ class StateMachineNode(hm.HelloNode):
 
         self.shelf_goal = ([0.0, 0.0, 0.0], 0.0)
         self.workstation_goal = ([1.3, 2.4, 0.0], 1.57)
-        self.marker_list = []
+        self.marker_list = [80]
         self.is_start = False
 
         self.vis_marker_array = MarkerArray()
@@ -101,7 +101,7 @@ class StateMachineNode(hm.HelloNode):
         res = OrderResponse()
         res.success = True
         res.message = "Orders cleared."
-        self.marker_list = [80]
+        self.marker_list = []
 
         curr_orders = Int16MultiArray()
         curr_orders.data = self.marker_list
@@ -386,7 +386,7 @@ class StateMachineNode(hm.HelloNode):
             service_name, Trigger
         )
 
-        sm = self.generate_fsm()
+        sm = self.grasp_fsm()
 
         sis = IntrospectionServer("state_machine", sm, "/state_machine")
         sis.start()
