@@ -6,7 +6,7 @@ raytrace_range: 3.0
 #             FL            BL              BR              FR
 footprint: [[0.05,0.175],[-0.30,0.175],[-0.30,-0.175],[0.05,-0.175]]
 
-footprint_padding: 0.1
+footprint_padding: 0.0
 
 transform_tolerance: 0.5
 map_type: costmap
@@ -73,7 +73,7 @@ inflation_layer:
 
 rgbd_obstacle_layer:
   enabled:               true
-  voxel_decay:           10     #seconds if linear, e^n if exponential
+  voxel_decay:           5     #seconds if linear, e^n if exponential
   decay_model:           0      #0=linear, 1=exponential, -1=persistent
   voxel_size:            0.05   #meters
   track_unknown_space:   true   #default space is unknown
@@ -103,7 +103,7 @@ rgbd_obstacle_layer:
     inf_is_valid: false          #default false, for laser scans
     clear_after_reading: true    #default false, clear the buffer after the layer gets readings from it
     filter: "voxel"              #default passthrough, apply "voxel", "passthrough", or no filter to sensor data, recommended to have at one filter on
-    voxel_min_points: 10        #default 0, minimum points per voxel for voxel filter
+    voxel_min_points: 15        #default 0, minimum points per voxel for voxel filter
   rgbd1_clear:
     enabled: true                #default true, can be toggled on/off with associated service call
     data_type: PointCloud2
@@ -112,8 +112,8 @@ rgbd_obstacle_layer:
     clearing: true
     min_z: 0.1                   #default 0, meters
     max_z: 7.0                   #default 10, meters
-    vertical_fov_angle: 0.7      #default 0.7, radians
-    horizontal_fov_angle: 0.9   #default 1.04, radians
+    vertical_fov_angle: 0.9      #default 0.7, radians
+    horizontal_fov_angle: 0.7   #default 1.04, radians
     decay_acceleration: 1.       #default 0, 1/s^2. If laser scanner MUST be 0
     model_type: 0                #default 0 (depth camera). Use 1 for 3D Lidar
   rgbd2_clear:
@@ -128,3 +128,24 @@ rgbd_obstacle_layer:
     horizontal_fov_angle: 0.9   #default 1.04, radians
     decay_acceleration: 1.       #default 0, 1/s^2. If laser scanner MUST be 0
     model_type: 0                #default 0 (depth camera). Use 1 for 3D Lidar
+  laser_clear:
+    enabled: true                #default true, can be toggled on/off with associated service call
+    data_type: LaserScan
+    topic: /scan_filtered
+    marking: false
+    clearing: true
+    min_z: 0.1                   #default 0, meters
+    max_z: 0.5                   #default 10, meters
+    vertical_fov_angle: 0.7      #default 0.7, radians
+    horizontal_fov_angle: 0.9   #default 1.04, radians
+    decay_acceleration: 0       #default 0, 1/s^2. If laser scanner MUST be 0
+    inf_is_valid: false          #default false, for laser scans
+    clear_after_reading: true  
+
+proxemic_layer:
+  enabled: true
+  cutoff: 10.0
+  amplitude: 50.0 #77.0
+  covariance: 0.25
+  factor: 3.0 #5.0
+  keep_time: 0.75
