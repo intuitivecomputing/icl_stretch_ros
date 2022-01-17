@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
-import time
 import math
+import time
+
 import stretch_body.robot
 from stretch_body.hello_utils import ThreadServiceExit
 

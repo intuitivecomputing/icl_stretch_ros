@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
 import math
+
+import cv2
+import hello_helpers.hello_misc as hm
 import numpy as np
 import ros_numpy as rnp
-
 import rospy
-from fiducial_msgs.msg import FiducialTransformArray, FiducialTransform
+import smach
+import smach_ros
+import stretch_funmap.manipulation_planning as mp
+import stretch_funmap.mapping as ma
+import stretch_funmap.navigate as nv
+import stretch_funmap.navigation_planning as na
+from cv_bridge import CvBridge, CvBridgeError
+from fiducial_msgs.msg import FiducialTransform, FiducialTransformArray
 from sensor_msgs.msg import Image, PointCloud2
 from std_srvs.srv import Trigger, TriggerRequest
 
-import cv2
-from cv_bridge import CvBridge, CvBridgeError
-
-import smach
-import smach_ros
-
-import hello_helpers.hello_misc as hm
-import stretch_funmap.navigate as nv
-import stretch_funmap.mapping as ma
-import stretch_funmap.navigation_planning as na
-import stretch_funmap.manipulation_planning as mp
 
 # def get_robot_pose(self):
 #     stamped_transform = self.tf_buffer.lookup_transform(
