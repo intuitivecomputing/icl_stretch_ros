@@ -1,41 +1,30 @@
-base_local_planner: "dwa_local_planner/DWAPlannerROS"
+# base_local_planner: "dwa_local_planner/DWAPlannerROS"
+base_local_planner: "teb_local_planner/TebLocalPlannerROS"
 
-TrajectoryPlannerROS:
-  acc_lim_x: 0.35
-  acc_lim_y: 0.0
-  acc_lim_theta: 0.8
-  max_vel_x: 1.0
-  min_vel_x: 0.15
-  max_vel_y: 0.0
-  min_vel_y: 0.0
-  max_vel_theta: 1.5
-  min_vel_theta: -1.5
-  min_in_place_vel_theta: 0.3
-  holonomic_robot: false
-  # base vel/accel profile is in robot folders
-  # tolerances (defaults)
-  yaw_goal_tolerance: 0.1
-  xy_goal_tolerance: 0.1
-  latch_xy_goal_tolerance: true
-  # forward simulation
-  sim_time: 1.0
-  sim_granularity: 0.025
-  angular_sim_granularity: 0.025
-  vx_samples: 3
-  vtheta_samples: 10
-  # scoring (defaults)
-  meter_scoring: true
-  path_distance_bias: 0.5
-  goal_distance_bias: 0.75
-  occdist_scale: 0.00625
-  heading_lookahead: 0.325
-  heading_scoring_timestep: 0.8
-  heading_scoring: true
-  dwa: false
-  # other
-  oscillation_reset_dist: 0.05
-  # debug
-  publish_cost_grid_pc: false
+TebLocalPlannerROS:
+  acc_lim_x: 0.4
+  acc_lim_theta: 0.4
+  max_vel_x: 0.6
+  max_vel_x_backwards: 0.2
+  max_vel_theta: 0.6
+  # wheelbase: 0.3
+  footprint_model:
+    type: "polygon"
+    vertices: [[0.05,0.175],[-0.30,0.175],[-0.30,-0.175],[0.05,-0.175]]
+  
+  xy_goal_tolerance: 0.2
+  yaw_goal_tolerance: 0.2
+
+  min_obstacle_dist: 0.01 
+  inflation_dist: 0.0
+  include_dynamic_obstacles: true
+  dynamic_obstacle_inflation_dist: 0.1
+  costmap_obstacles_behind_robot_dist: 0.35
+
+
+  odom_topic: "odom"
+  map_frame: "map"
+
 
 DWAPlannerROS:
   #vel params

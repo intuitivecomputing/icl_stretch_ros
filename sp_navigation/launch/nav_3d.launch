@@ -3,7 +3,7 @@
   The nodes needed for navigation are map_server, octomap_server, amcl, and move_base.-->
 
     <!-- Map name -->
-    <arg name="map" default="map_328" />
+    <arg name="map" default="octo_328" />
     <!-- Move_base configuration folder. -->
     <arg name="move_base_config" value="3d" />
 
@@ -25,7 +25,7 @@
     <!-- Launch Map Server -->
     <include file="$(find sp_navigation)/launch/navigation/map_server.launch">
         <!-- <arg name="map_name" value="$(find stretch_navigation)/resources/static_maps/2d/$(arg map).yaml" /> -->
-        <arg name="map_name" value="/home/hello-robot/stretch_user/maps/$(arg map).yaml" />
+        <arg name="map_name" value="$(find sp_navigation)/maps/$(arg map).yaml" />
     </include>
 
     <!-- Launch positive and negative Octomap Server -->

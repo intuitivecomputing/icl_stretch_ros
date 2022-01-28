@@ -14,6 +14,8 @@
         <param name="initial_mode" type="string" value="High Accuracy" />
     </node> -->
 
+    <include file="$(find sp_navigation)/launch/nav_2d.launch"/>
+
     <!-- TELEOP -->
     <include file="$(find stretch_core)/launch/teleop_twist.launch">
         <arg name="teleop_type" value="$(arg teleop_type)" />

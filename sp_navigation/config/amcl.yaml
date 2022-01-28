@@ -9,7 +9,7 @@
 min_particles:        100       # 100,500
 max_particles:        10000     # 5000
 kld_err:              0.05      # 0.01, 0.05
-kld_z:                0.99      # 0.99
+kld_z:                0.5      # 0.99
 update_min_d:         0.1       # 0.2
 update_min_a:         0.1    # 0.5235
 resample_interval:    1         # 2, 1
@@ -41,7 +41,7 @@ laser_likelihood_max_dist:  2.0    # 2.0
 laser_model_type:           likelihood_field_prob
 
 # Odometery model parameters
-odom_model_type:  diff
+odom_model_type:  diff-corrected
 odom_alpha1:      0.5    # 0.2 rr
 odom_alpha2:      0.25   # 0.2 rt
 odom_alpha3:      0.6    # 0.2,0.8 tt

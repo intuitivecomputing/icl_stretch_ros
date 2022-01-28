@@ -3,7 +3,7 @@
   The nodes needed for navigation are map_server, octomap_server, amcl, and move_base.-->
 
     <!-- Map name -->
-    <arg name="map" default="map_328" />
+    <arg name="map" default="map_328_narrow" />
     <!-- Move_base configuration folder. -->
     <arg name="move_base_config" value="2d" />
 
@@ -18,27 +18,22 @@
     <!-- Launch Map Server -->
     <include file="$(find stretch_navigation)/launch/navigation/map_server.launch">
         <!-- <arg name="map_name" value="$(find stretch_navigation)/resources/static_maps/2d/$(arg map).yaml" /> -->
-        <arg name="map_name" value="/home/hello-robot/stretch_user/maps/$(arg map).yaml" />
+        <arg name="map_name" value="$(find sp_navigation)/maps/$(arg map).yaml" />
     </include>
 
-    <!-- Launch positive and negative Octomap Server -->
-    <!-- <include file="$(find stretch_navigation)/launch/navigation/octomap_server.launch">
-        <arg name="map" value="$(find stretch_navigation)/resources/static_maps/3d/$(arg map).bt" />
-        <arg name="base_link" value="$(arg base_link)" />
-    </include> -->
 
     <!--- Launch AMCL (Laser Localization) -->
     <node pkg="amcl" type="amcl" name="amcl" output="screen">
         <!-- <rosparam file="$(find stretch_navigation)/resources/config/amcl.yaml" command="load" /> -->
         <rosparam file="$(find sp_navigation)/config/amcl.yaml" command="load" />
-        <remap from="/scan" to="/scan_filtered"/>
+        <remap from="/scan" to="$(arg laser_topic)" />
     </node>
 
 
     <!-- Launch move_base -->
     <!-- Note that you will also need to change the relevant .yaml files (or make new copies)
        if you wish to use another namespace/robot_name. -->
-    <include file="$(find stretch_navigation)/launch/navigation/move_base.launch">
+    <include file="$(find sp_navigation)/launch/navigation/move_base.launch">
         <arg name="config" value="$(arg move_base_config)" />
         <arg name="cmd_vel_topic" value="$(arg cmd_vel_topic)" />
         <arg name="odom_topic" value="$(arg odom_topic)" />

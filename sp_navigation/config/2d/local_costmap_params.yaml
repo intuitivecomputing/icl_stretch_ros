@@ -1,6 +1,7 @@
 local_costmap:
   plugins:
   - {name: 2d_obstacles, type: "costmap_2d::ObstacleLayer"}
+  - {name: rgbd_obstacle_layer, type: "spatio_temporal_voxel_layer/SpatioTemporalVoxelLayer"}
   - {name: inflation_layer, type: "costmap_2d::InflationLayer"}
   global_frame: map
   robot_base_frame: base_link
