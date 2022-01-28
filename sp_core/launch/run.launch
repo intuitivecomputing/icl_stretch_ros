@@ -1,0 +1,9 @@
+<launch>
+    <include file="$(find sp_core)/launch/robot_nav_bringup.launch"></include>
+
+    <!-- ARUCO MARKER DETECTOR -->
+    <include file="$(find sp_perception)/launch/aruco.launch"></include>
+    <!-- -->
+
+    <include file="$(find sp_navigation)/launch/nav_3d.launch"></include>
+</launch>

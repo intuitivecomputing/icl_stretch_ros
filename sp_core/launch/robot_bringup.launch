@@ -1,7 +1,7 @@
 <launch>
 
-  <arg name="debug_directory" value="$(env HELLO_FLEET_PATH)/debug/"/>
-  <arg name="map_yaml"        default="$(env HELLO_FLEET_PATH)/debug/merged_maps/merged_map_20211109010620" doc="previously captured FUNMAP map (optional)" />
+  <!-- <arg name="debug_directory" value="$(env HELLO_FLEET_PATH)/debug/"/>
+  <arg name="map_yaml"        default="$(env HELLO_FLEET_PATH)/debug/merged_maps/merged_map_20211109010620" doc="previously captured FUNMAP map (optional)" /> -->
 
 
   <!-- Launch multiple REALSENSE D435i -->
@@ -12,8 +12,12 @@
   <include file="$(find stretch_core)/launch/rplidar.launch" />
   <!-- -->
 
+  <!-- IMU FILTER -->
+  <include file="$(find sp_core)/launch/imu_filter.launch" />
+  <!--  -->
+
   <!-- LASER SCAN MATCHER FOR ODOMETRY -->
-  <include file="$(find stretch_core)/launch/stretch_scan_matcher.launch" />
+  <!-- <include file="$(find stretch_core)/launch/stretch_scan_matcher.launch" /> -->
   <!-- -->
 
   <!-- WebSocket -->

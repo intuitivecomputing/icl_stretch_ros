@@ -118,11 +118,11 @@ class PreSearchState(smach.State):
     def execute(self, userdata):
         # max_wrist_extension_m = 0.5
         # gripper backwards stow
-        pose = {"joint_wrist_yaw": 3.3}
+        pose = {"joint_wrist_yaw": 1.57}
         self.node.move_to_pose(pose)
         pose = {"joint_lift": 0.9}
         self.node.move_to_pose(pose)
-        pose = {"wrist_extension": 0.1}
+        pose = {"wrist_extension": 0.01}
         self.node.move_to_pose(pose)
         rospy.sleep(0.5)
         rospy.loginfo(f"[{self.__class__.__name__}]")
@@ -139,21 +139,22 @@ class PreMoveState(smach.State):
 
     def execute(self, userdata):
         self.node.switch_to_position_mode_service(TriggerRequest())
-        pose = {"joint_gripper_finger_left": -0.15}
+        pose = {"joint_gripper_finger_left": -0.15, "joint_head_tilt": -0.6}
         self.node.move_to_pose(pose)
         pose = {"wrist_extension": 0.01}
         self.node.move_to_pose(pose)
 
         # gripper backwards stow
-        pose = {"joint_wrist_yaw": 3.3}
+        pose = {"joint_wrist_yaw": 3.0}
 
         # gripper forward stow needs a better forward range of motion to work well
         self.node.move_to_pose(pose)
 
         # avoid blocking the laser range finder with the gripper
-        pose = {"joint_lift": 0.22}
+        pose = {"joint_lift": 0.45}
         self.node.move_to_pose(pose)
         rospy.loginfo(f"[{self.__class__.__name__}] Stow robot")
+        self.node.switch_to_navigation_mode_service(TriggerRequest())
         return "succeeded"
 
 
@@ -211,19 +212,19 @@ class PreDetectState(smach.State):
         rospy.loginfo(
             f"[{self.__class__.__name__}] fiducial_{marker_id} at {translation} in {cam_frame_id}"
         )
-        camera_tolerance = (0.05, 0.05, 0.5)
-        if np.abs(translation[2] - camera_tolerance[2]) >= 0.02:
-            # print(self.node.wrist_position)
-            pose = {
-                "wrist_extension": self.node.wrist_position
-                + (translation[2] - camera_tolerance[2])
-            }
-            self.node.move_to_pose(pose)
-        if np.abs(translation[0]) >= camera_tolerance[0]:
-            self.node.move_base.forward(-translation[0], detect_obstacles=False)
+        camera_tolerance = (0.01, 0.05, 0.5)
+        # if np.abs(translation[2] - camera_tolerance[2]) >= 0.02:
+        #     # print(self.node.wrist_position)
+        #     pose = {
+        #         "wrist_extension": self.node.wrist_position
+        #         + (translation[2] - camera_tolerance[2])
+        #     }
+        #     self.node.move_to_pose(pose)
+        # if np.abs(translation[0]) >= camera_tolerance[0]:
+        self.node.move_base.forward(-translation[0], detect_obstacles=False)
         if np.abs(translation[1] + camera_tolerance[1]) >= 0.02:
             pose = {
-                "joint_lift": self.node.lift_position - (translation[1] + 0.05)
+                "joint_lift": self.node.lift_position - (translation[1] + 0.025)
             }
             self.node.move_to_pose(pose)
 
@@ -251,12 +252,12 @@ class DetectState(smach.State):
         # move gripper to pregrasp position
         # pose = {"joint_wrist_yaw": 0.0}
         # self.node.move_to_pose(pose)
-        pose = {"gripper_aperture": 0.125}
-        self.node.move_to_pose(pose)
+        # pose = {"gripper_aperture": 0.0}
+        # self.node.move_to_pose(pose)
         rospy.loginfo(
-            f"[{self.__class__.__name__}]  wait 2sec for sensor to stabalize"
+            f"[{self.__class__.__name__}]  wait 1 sec for sensor to stabalize"
         )
-        rospy.sleep(2.0)
+        rospy.sleep(1.0)
 
         cloud_msg = rospy.wait_for_message(
             "/wrist_camera/depth/color/points", PointCloud2
@@ -365,6 +366,32 @@ class GraspState(smach.State):
         return "succeeded"
 
 
+class PostGraspState(smach.State):
+    def __init__(self, node):
+        smach.State.__init__(
+            self,
+            outcomes=["succeeded"],
+        )
+        self.node = node
+
+    def execute(self, userdata):
+        rospy.sleep(1.0)
+        post_grasp_lift_m = 0.01
+        pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
+        self.node.move_to_pose(pose)
+        rospy.sleep(0.5)
+        pose = {"wrist_extension": 0.1}
+        self.node.move_to_pose(pose)
+        pose = {"joint_wrist_yaw": 3.6}
+        self.node.move_to_pose(pose)
+
+        pose = {"joint_lift": 0.25}
+        self.node.move_to_pose(pose)
+        pose = {"gripper_aperture": 0.125}
+        self.node.move_to_pose(pose)
+        return "succeeded"
+
+
 class MagnetState(smach.State):
     def __init__(self, node):
         smach.State.__init__(
@@ -375,15 +402,19 @@ class MagnetState(smach.State):
         self.node = node
 
     def execute(self, userdata):
-        pose = {"joint_wrist_yaw": 1.57}
-        self.node.move_to_pose(pose)
+        # pose = {"joint_wrist_yaw": 1.57}
+        # self.node.move_to_pose(pose)
 
         target = userdata.target
         target_frame = userdata.target_frame
+
+        self.node.trigger_magnet_service(TriggerRequest())
+
         grasp_center_frame = "link_magnet"
         base_frame = "base_link"
-        wrist_extension_offset_m = 0.05
-        forward_offset_m = 0.06
+        wrist_extension_offset_m = 0.025
+        forward_offset_m = 0.0
+        lift_offset_m = 0.02
 
         target_to_base_mat = self.node.lookup_transform_mat(
             base_frame,
@@ -404,12 +435,17 @@ class MagnetState(smach.State):
         grasp_center_in_base_frame = grasp_to_base_mat[:3, 3]
         translation = grasp_target_in_base_frame - grasp_center_in_base_frame
         # print(grasp_target_in_base_frame - grasp_center_in_base_frame)
+        print(translation)
         # move in x / forward
         self.node.move_base.forward(
             translation[0] + forward_offset_m, detect_obstacles=False
         )
         # move z / lift
-        pose = {"joint_lift": self.node.lift_position + translation[2]}
+        pose = {
+            "joint_lift": self.node.lift_position
+            + translation[2]
+            + lift_offset_m
+        }
         self.node.move_to_pose(pose)
 
         # move y / -side
@@ -424,40 +460,12 @@ class MagnetState(smach.State):
             f"[{self.__class__.__name__}] grasping at {translation} in {grasp_center_frame}"
         )
 
-        self.node.trigger_magnet_service(TriggerRequest())
         rospy.sleep(1.0)
         # pose = {"gripper_aperture": -0.1}
         # self.node.move_to_pose(pose)
 
         # self.node.update_vis_markers(base_frame, grasp_target_in_base_frame)
         # self.node.update_vis_markers(base_frame, grasp_center_in_base_frame)
-        return "succeeded"
-
-
-class PostGraspState(smach.State):
-    def __init__(self, node):
-        smach.State.__init__(
-            self,
-            outcomes=["succeeded"],
-        )
-        self.node = node
-
-    def execute(self, userdata):
-        rospy.sleep(1.0)
-        post_grasp_lift_m = 0.01
-        print(self.node.lift_position)
-        pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
-        self.node.move_to_pose(pose)
-        rospy.sleep(0.5)
-        pose = {"wrist_extension": 0.1}
-        self.node.move_to_pose(pose)
-        pose = {"joint_wrist_yaw": 3.6}
-        self.node.move_to_pose(pose)
-
-        pose = {"joint_lift": 0.25}
-        self.node.move_to_pose(pose)
-        pose = {"gripper_aperture": 0.125}
-        self.node.move_to_pose(pose)
         return "succeeded"
 
 
@@ -471,17 +479,17 @@ class PostMagnetState(smach.State):
 
     def execute(self, userdata):
         rospy.sleep(1.0)
-        post_grasp_lift_m = 0.01
-        print(self.node.lift_position)
+        post_grasp_lift_m = 0.015
         pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
         self.node.move_to_pose(pose)
-        rospy.sleep(0.5)
-        pose = {"wrist_extension": 0.1}
-        self.node.move_to_pose(pose)
-        pose = {"joint_wrist_yaw": -1.57}
+        rospy.sleep(1.0)
+        pose = {"wrist_extension": 0.01}
         self.node.move_to_pose(pose)
 
-        pose = {"joint_lift": 0.25}
+        pose = {"joint_wrist_yaw": -np.deg2rad(45)}
+        self.node.move_to_pose(pose)
+
+        pose = {"joint_lift": 0.4}
         self.node.move_to_pose(pose)
 
         self.node.trigger_magnet_service(TriggerRequest())

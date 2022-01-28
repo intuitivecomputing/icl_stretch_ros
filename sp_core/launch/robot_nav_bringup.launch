@@ -19,6 +19,10 @@
 	<include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
 	<!-- -->
 
+	<!-- ARUCO MARKER DETECTOR -->
+	<include file="$(find sp_perception)/launch/aruco.launch"></include>
+	<!-- -->
+
 	<!-- magnet control -->
 	<include file="$(find sp_core)/launch/magnet.launch" />
 	<!-- -->
