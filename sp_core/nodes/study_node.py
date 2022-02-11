@@ -112,15 +112,16 @@ class StudyNode(hm.HelloNode):
         pose = {"wrist_extension": 0.01}
         self.move_to_pose(pose)
         self.move_to_pose({"joint_wrist_yaw": 0.0})
+        self.move_to_pose({"gripper_aperture": 0.0})
 
     def rest(self):
         rospy.loginfo("Rest.")
-        pose = {"joint_lift": 0.8}
+        pose = {"joint_lift": 0.5}
         self.move_to_pose(pose)
         pose = {"wrist_extension": 0.01}
         self.move_to_pose(pose)
-        self.move_to_pose({"joint_wrist_yaw": 0.0})
-        self.move_to_pose({"gripper_aperture": 0.125})
+        self.move_to_pose({"joint_wrist_yaw": 3})
+        self.move_to_pose({"gripper_aperture": 0.05})
 
     def clean(self, position):
         lift_to_surface_m = 0.75

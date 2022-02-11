@@ -4,6 +4,7 @@ import pickle
 import subprocess
 from distutils.command.config import config
 from pathlib import Path
+from threading import Thread
 
 import rospy
 from playsound import playsound
@@ -54,36 +55,37 @@ class SpeechSynthesizer(object):
     def __init__(self):
         self.out_path = "/home/hello-robot/catkin_ws/tts_output.wav"
         self.buffer_path = Path(__file__).parent / "../buffer.pickle"
+        # self.voice_thread = Thread(target=self.play_and_delete)
 
         # load buffer
-        if self.buffer == {} and self.buffer_path.is_file():
+        if SpeechSynthesizer.buffer == {} and self.buffer_path.is_file():
             with open(self.buffer_path, "rb") as handle:
-                self.buffer = pickle.load(handle)
+                SpeechSynthesizer.buffer = pickle.load(handle)
+        # print(SpeechSynthesizer.buffer.keys())
 
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __del__(self):
         with open(self.buffer_path, "wb") as handle:
-            pickle.dump(self.buffer, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        # print("\nInside __exit__")
-        # print("\nExecution type:", exc_type)
-        # print("\nExecution value:", exc_value)
-        # print("\nTraceback:", traceback)
+            pickle.dump(
+                SpeechSynthesizer.buffer,
+                handle,
+                protocol=pickle.HIGHEST_PROTOCOL,
+            )
 
     def speak(self, text):
+        # play = lambda: playsound(self.out_path)
+
         if text in self.buffer:
-            wav = self.buffer[text]
+            wav = SpeechSynthesizer.buffer[text]
         else:
             wav = self.synthesizer.tts(text)
-            self.buffer[text] = wav
+            SpeechSynthesizer.buffer[text] = wav
         self.synthesizer.save_wav(wav, self.out_path)
-        play_and_delete(self.out_path)
+        playsound(self.out_path, block=True)
+        # self.voice_thread.start()
 
-
-def play_and_delete(filename):
-    playsound(filename)
-    os.remove(filename)
+    def play_and_delete(self):
+        playsound(self.out_path)
+        os.remove(self.out_path)
 
 
 # def handle_tts(req):
@@ -95,24 +97,27 @@ def tts_server():
     rospy.init_node("tts_service_node")
     trigger_robot_lip_service = rospy.ServiceProxy("/robot_face/talk", SetBool)
 
+    speaker = SpeechSynthesizer()
+
     def handle_tts(req):
         # speaker.speak(req.data)
         msg = SetBoolRequest()
+
         msg.data = True
         trigger_robot_lip_service(msg)
 
-        with SpeechSynthesizer() as speaker:
-            speaker.speak(req.data)
-            msg.data = False
-            trigger_robot_lip_service(msg)
-        return SpeechResponse(True, "")
+        speaker.speak(req.data)
+
+        msg.data = False
+        trigger_robot_lip_service(msg)
+        return SpeechResponse(True, req.data)
 
     s = rospy.Service("/tts", Speech, handle_tts)
     soundhandle = SoundClient()
 
     def handle_tts_machine(req):
         voice = "voice_kal_diphone"
-        volume = 1.0
+        volume = 10.0
         # msg = SetBoolRequest()
         # msg.data = True
         # trigger_robot_lip_service(msg)
