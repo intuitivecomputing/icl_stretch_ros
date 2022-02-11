@@ -11,6 +11,7 @@
       <arg name="depth_height" value="480"/>
       <arg name="color_width" value="848" />
       <arg name="color_height" value="480" />
+      <arg name="serial_no" value="031522070880" />
     <!-- <arg name="initial_reset" value="true" /> -->
   </include>
   <node name="d435i_configure" pkg="stretch_core" type="d435i_configure" output="screen">
