@@ -1,11 +1,16 @@
 #!/usr/bin/env python
 import os
 import pickle
+from contextlib import closing
+from io import BytesIO
 from pathlib import Path
 
+import boto3
 import pyttsx3
 import rospy
 from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
 from sp_msgs.srv import Speech, SpeechResponse
 from std_srvs.srv import SetBool, SetBoolRequest
 from TTS.utils.manage import ModelManager
@@ -44,8 +49,10 @@ def make_synthesizer():
 
 
 class SpeechSynthesizer(object):
-    synthesizer = make_synthesizer()
+    # synthesizer = make_synthesizer()
     engine = pyttsx3.init()
+    # secrets are stored in ~/.aws/credentials
+    polly = boto3.Session().client("polly")
     buffer = {}
 
     def __init__(self):
@@ -70,21 +77,33 @@ class SpeechSynthesizer(object):
                 protocol=pickle.HIGHEST_PROTOCOL,
             )
 
-    def speak(self, text):
-        # play = lambda: playsound(self.out_path)
+    # def speak(self, text):
+    #     # play = lambda: playsound(self.out_path)
 
-        if text in self.buffer:
-            wav = SpeechSynthesizer.buffer[text]
-        else:
-            wav = self.synthesizer.tts(text)
-            SpeechSynthesizer.buffer[text] = wav
-        SpeechSynthesizer.synthesizer.save_wav(wav, self.out_path)
-        playsound(self.out_path, block=True)
-        # self.voice_thread.start()
+    #     if text in self.buffer:
+    #         wav = SpeechSynthesizer.buffer[text]
+    #     else:
+    #         wav = self.synthesizer.tts(text)
+    #         SpeechSynthesizer.buffer[text] = wav
+    #     SpeechSynthesizer.synthesizer.save_wav(wav, self.out_path)
+    #     playsound(self.out_path, block=True)
+    #     # self.voice_thread.start()
 
     def speak_pyttsx3(self, text):
         SpeechSynthesizer.engine.say(text)
         SpeechSynthesizer.engine.runAndWait()
+
+    def speak_polly(self, text):
+        response = SpeechSynthesizer.polly.synthesize_speech(
+            Engine="neural",
+            VoiceId="Joanna",
+            OutputFormat="mp3",
+            Text=text,
+        )
+
+        with closing(response["AudioStream"]) as stream:
+            sound = AudioSegment.from_file(BytesIO(stream.read()), format="mp3")
+        play(sound)
 
     def play_and_delete(self):
         playsound(self.out_path)
@@ -103,7 +122,8 @@ def tts_server():
         msg.data = True
         trigger_robot_lip_service(msg)
 
-        speaker.speak(req.data)
+        # speaker.speak(req.data)
+        speaker.speak_polly(req.data)
 
         msg.data = False
         trigger_robot_lip_service(msg)
