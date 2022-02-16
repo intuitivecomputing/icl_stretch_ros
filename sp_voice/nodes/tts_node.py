@@ -1,29 +1,24 @@
 #!/usr/bin/env python
 import os
 import pickle
-import subprocess
-from distutils.command.config import config
 from pathlib import Path
-from threading import Thread
 
+import pyttsx3
 import rospy
 from playsound import playsound
-from sound_play.libsoundplay import SoundClient
-from sound_play.msg import SoundRequest
 from sp_msgs.srv import Speech, SpeechResponse
 from std_srvs.srv import SetBool, SetBoolRequest
 from TTS.utils.manage import ModelManager
 from TTS.utils.synthesizer import Synthesizer
 
+# def speak(text):
+#     from gtts import gTTS
 
-def speak(text):
-    from gtts import gTTS
+#     tts = gTTS(text=text, lang="en")
 
-    tts = gTTS(text=text, lang="en")
-
-    filename = "tts_output.mp3"
-    tts.save(filename)
-    play_and_delete(filename)
+#     filename = "tts_output.mp3"
+#     tts.save(filename)
+#     play_and_delete(filename)
 
 
 def make_synthesizer():
@@ -50,6 +45,7 @@ def make_synthesizer():
 
 class SpeechSynthesizer(object):
     synthesizer = make_synthesizer()
+    engine = pyttsx3.init()
     buffer = {}
 
     def __init__(self):
@@ -62,6 +58,9 @@ class SpeechSynthesizer(object):
             with open(self.buffer_path, "rb") as handle:
                 SpeechSynthesizer.buffer = pickle.load(handle)
         # print(SpeechSynthesizer.buffer.keys())
+
+        SpeechSynthesizer.engine.setProperty("volume", 1.0)
+        SpeechSynthesizer.engine.setProperty("rate", 170)
 
     def __del__(self):
         with open(self.buffer_path, "wb") as handle:
@@ -79,18 +78,17 @@ class SpeechSynthesizer(object):
         else:
             wav = self.synthesizer.tts(text)
             SpeechSynthesizer.buffer[text] = wav
-        self.synthesizer.save_wav(wav, self.out_path)
+        SpeechSynthesizer.synthesizer.save_wav(wav, self.out_path)
         playsound(self.out_path, block=True)
         # self.voice_thread.start()
+
+    def speak_pyttsx3(self, text):
+        SpeechSynthesizer.engine.say(text)
+        SpeechSynthesizer.engine.runAndWait()
 
     def play_and_delete(self):
         playsound(self.out_path)
         os.remove(self.out_path)
-
-
-# def handle_tts(req):
-#     speak(req.data)
-#     return SpeechResponse(True, "")
 
 
 def tts_server():
@@ -100,7 +98,6 @@ def tts_server():
     speaker = SpeechSynthesizer()
 
     def handle_tts(req):
-        # speaker.speak(req.data)
         msg = SetBoolRequest()
 
         msg.data = True
@@ -112,23 +109,19 @@ def tts_server():
         trigger_robot_lip_service(msg)
         return SpeechResponse(True, req.data)
 
-    s = rospy.Service("/tts", Speech, handle_tts)
-    soundhandle = SoundClient()
-
     def handle_tts_machine(req):
-        voice = "voice_kal_diphone"
-        volume = 10.0
-        # msg = SetBoolRequest()
-        # msg.data = True
-        # trigger_robot_lip_service(msg)
+        msg = SetBoolRequest()
 
-        soundhandle.say(req.data, voice, volume)
+        msg.data = True
+        trigger_robot_lip_service(msg)
 
-        # msg.data = False
-        # trigger_robot_lip_service(msg)
+        speaker.speak_pyttsx3(req.data)
+
+        msg.data = False
+        trigger_robot_lip_service(msg)
         return SpeechResponse(True, req.data)
 
-    rospy.sleep(1)
+    s = rospy.Service("/tts", Speech, handle_tts)
 
     s2 = rospy.Service("/tts_machine", Speech, handle_tts_machine)
     rospy.spin()

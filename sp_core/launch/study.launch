@@ -38,8 +38,6 @@
 
     <!-- <include file="$(find sp_navigation)/launch/nav_3d.launch"></include> -->
     
-
-    <node pkg="sound_play" type="soundplay_node.py" name="soundplay_node"/>
     <node name="tts_node" pkg="sp_voice" type="tts_node.py" output="screen"></node>
 
     <node name="study_node" pkg="sp_core" type="study_node.py" output="screen"></node>
