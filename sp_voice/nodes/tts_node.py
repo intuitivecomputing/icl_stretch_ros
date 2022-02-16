@@ -126,7 +126,7 @@ def tts_server():
 
         # msg.data = False
         # trigger_robot_lip_service(msg)
-        return SpeechResponse(True, "")
+        return SpeechResponse(True, req.data)
 
     rospy.sleep(1)
 

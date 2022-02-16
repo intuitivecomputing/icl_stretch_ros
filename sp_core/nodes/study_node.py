@@ -107,6 +107,8 @@ class StudyNode(hm.HelloNode):
 
     def stow(self):
         rospy.loginfo("Stow.")
+        pose = {"joint_head_tilt": 0.4}
+        self.move_to_pose(pose)
         pose = {"joint_lift": 0.8}
         self.move_to_pose(pose)
         pose = {"wrist_extension": 0.01}
