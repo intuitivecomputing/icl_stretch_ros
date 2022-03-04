@@ -90,6 +90,7 @@ class SpeechSynthesizer(object):
     #     # self.voice_thread.start()
 
     def speak_pyttsx3(self, text):
+        SpeechSynthesizer.engine.stop()
         SpeechSynthesizer.engine.say(text)
         SpeechSynthesizer.engine.runAndWait()
 
@@ -123,6 +124,7 @@ def tts_server():
         trigger_robot_lip_service(msg)
 
         # speaker.speak(req.data)
+        rospy.loginfo(f"TTS recv: {req.data}")
         speaker.speak_polly(req.data)
 
         msg.data = False
@@ -134,7 +136,7 @@ def tts_server():
 
         msg.data = True
         trigger_robot_lip_service(msg)
-
+        rospy.loginfo(f"TTS recv: {req.data}")
         speaker.speak_pyttsx3(req.data)
 
         msg.data = False

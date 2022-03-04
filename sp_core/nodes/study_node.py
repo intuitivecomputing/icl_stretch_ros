@@ -118,9 +118,9 @@ class StudyNode(hm.HelloNode):
 
     def rest(self):
         rospy.loginfo("Rest.")
-        pose = {"joint_lift": 0.5}
-        self.move_to_pose(pose)
         pose = {"wrist_extension": 0.01}
+        self.move_to_pose(pose)
+        pose = {"joint_lift": 0.4}
         self.move_to_pose(pose)
         self.move_to_pose({"joint_wrist_yaw": 3})
         self.move_to_pose({"gripper_aperture": 0.05})
