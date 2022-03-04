@@ -31,6 +31,7 @@
     
     <!-- LASER RANGE FINDER -->
     <include file="$(find sp_core)/launch/rplidar.launch" />
+    <include file="$(find sp_core)/launch/laser_filter.launch" />
     <!--  -->
     <!-- LASER SCAN MATCHER FOR ODOMETRY -->
     <include file="$(find stretch_core)/launch/stretch_scan_matcher.launch" />
