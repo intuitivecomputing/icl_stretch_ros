@@ -10,7 +10,7 @@
     <param name="scan_mode"           type="string" value="Boost"/>
   </node>
 
-  <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain"
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain"
       name="laser_filter">
     <rosparam ns="scan_filter_chain">
         - name: shadows
@@ -21,7 +21,7 @@
             neighbors: 20
             window: 1
     </rosparam>
-  </node> -->
+  </node>
 
   <!-- <node pkg="laser_filters" type="scan_to_scan_filter_chain"
       name="laser_filter">

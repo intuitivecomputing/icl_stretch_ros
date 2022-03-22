@@ -120,9 +120,9 @@ class PreSearchState(smach.State):
         # gripper backwards stow
         pose = {"joint_wrist_yaw": 1.57}
         self.node.move_to_pose(pose)
-        pose = {"joint_lift": 0.9}
+        pose = {"joint_lift": 0.8}
         self.node.move_to_pose(pose)
-        pose = {"wrist_extension": 0.01}
+        pose = {"wrist_extension": 0.1}
         self.node.move_to_pose(pose)
         rospy.sleep(0.5)
         rospy.loginfo(f"[{self.__class__.__name__}]")
@@ -139,9 +139,10 @@ class PreMoveState(smach.State):
 
     def execute(self, userdata):
         self.node.switch_to_position_mode_service(TriggerRequest())
+        rospy.loginfo(f"[{self.__class__.__name__}] Switch to pos mode.")
         pose = {"joint_gripper_finger_left": -0.15, "joint_head_tilt": -0.6}
         self.node.move_to_pose(pose)
-        pose = {"wrist_extension": 0.01}
+        pose = {"wrist_extension": 0.1}
         self.node.move_to_pose(pose)
 
         # gripper backwards stow
@@ -155,6 +156,15 @@ class PreMoveState(smach.State):
         self.node.move_to_pose(pose)
         rospy.loginfo(f"[{self.__class__.__name__}] Stow robot")
         self.node.switch_to_navigation_mode_service(TriggerRequest())
+        rospy.loginfo(f"[{self.__class__.__name__}] Switch to nav mode.")
+        self.node.localization_service()
+        rospy.sleep(0.5)
+        self.node.localization_service()
+        rospy.sleep(0.5)
+        # self.node.localization_service()
+        rospy.loginfo(
+            f"[{self.__class__.__name__}] Localize {self.node.localization_service()}."
+        )
         return "succeeded"
 
 
@@ -180,11 +190,13 @@ class SearchMarkersState(smach.State):
         if num_detection == 0:
             rospy.loginfo(f"[{self.__class__.__name__}] No marker detected.")
             return "undetected"
+        # self.marker_list.remove(detections[0].fiducial_id)
         rospy.loginfo(
-            f"[{self.__class__.__name__}] Marker #{detections[0].fiducial_id} detected."
+            f"[{self.__class__.__name__}] Marker #{detections[0].fiducial_id} detected, removed from list."
         )
         # userdata.detected_markers = detections
         userdata.detected_marker_id = detections[0].fiducial_id
+
         return "detected"
 
 
@@ -241,6 +253,10 @@ class DetectState(smach.State):
         )
         self.node = node
         self.min_cloud_points = 15
+        # pub debug cloud
+        self.node.debug_cloud_pub = rospy.Publisher(
+            "/debug_cloud", PointCloud2, queue_size=10
+        )
 
     def execute(self, userdata):
         marker_id = userdata.detected_marker_id
@@ -271,8 +287,11 @@ class DetectState(smach.State):
             target_frame_id,
         )[:3, 3]
 
-        marker_coord = translation + [0.03, 0.03, -0.03]
-        detect_box = (0.12, 0.12)
+        marker_coord = translation + [-0.05, 0.00, -0.035]
+        detect_box = (0.1, 0.3)
+        rospy.loginfo(
+            f"[{self.__class__.__name__}] detected marker at {marker_coord} in {cloud_frame}"
+        )
 
         cloud_mask = []
         dxyz = xyz - marker_coord.reshape(1, 3)
@@ -289,11 +308,23 @@ class DetectState(smach.State):
         if len(filtered_cloud) <= self.min_cloud_points:
             rospy.loginfo(f"[{self.__class__.__name__}] too few points")
             return "aborted"
+        # publish a filtered cloud for debugging
+        debug_cloud_msg = rnp.point_cloud2.array_to_pointcloud2(
+            rnp.point_cloud2.pointcloud2_to_array(cloud_msg)[cloud_mask],
+            stamp=cloud_msg.header.stamp,
+            frame_id=cloud_frame,
+        )
+        self.node.debug_cloud_pub.publish(debug_cloud_msg)
+
         center_of_mass = np.average(filtered_cloud, axis=0)
         rospy.loginfo(
             f"[{self.__class__.__name__}] detected COM at {center_of_mass} in {cloud_frame}"
         )
-        userdata.target = center_of_mass
+
+        target_coord = center_of_mass
+        target_coord[1] = marker_coord[1] + 0.06
+
+        userdata.target = target_coord  # center_of_mass
         userdata.target_frame = cloud_frame
 
         self.node.update_vis_markers(cloud_frame, center_of_mass)
@@ -317,7 +348,7 @@ class GraspState(smach.State):
         target_frame = userdata.target_frame
         grasp_center_frame = "link_grasp_center"
         base_frame = "base_link"
-        wrist_extension_offset_m = 0.03
+        wrist_extension_offset_m = 0.0
         forward_offset_m = 0.0  # 0.02
 
         target_to_base_mat = self.node.lookup_transform_mat(
@@ -382,6 +413,7 @@ class PostGraspState(smach.State):
         rospy.sleep(0.5)
         pose = {"wrist_extension": 0.1}
         self.node.move_to_pose(pose)
+        rospy.sleep(1.0)
         pose = {"joint_wrist_yaw": 3.6}
         self.node.move_to_pose(pose)
 
@@ -412,8 +444,8 @@ class MagnetState(smach.State):
 
         grasp_center_frame = "link_magnet"
         base_frame = "base_link"
-        wrist_extension_offset_m = 0.025
-        forward_offset_m = 0.0
+        wrist_extension_offset_m = 0.02  # 0.025
+        forward_offset_m = 0.02
         lift_offset_m = 0.02
 
         target_to_base_mat = self.node.lookup_transform_mat(
@@ -483,17 +515,27 @@ class PostMagnetState(smach.State):
         pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
         self.node.move_to_pose(pose)
         rospy.sleep(1.0)
+        pose = {"wrist_extension": 0.2}
+        self.node.move_to_pose(pose)
+        rospy.sleep(0.1)
+        pose = {"joint_wrist_yaw": 4.3}
+        self.node.move_to_pose(pose)
+        rospy.sleep(0.3)
         pose = {"wrist_extension": 0.01}
         self.node.move_to_pose(pose)
-
-        pose = {"joint_wrist_yaw": -np.deg2rad(45)}
+        rospy.sleep(0.5)
+        self.node.trigger_magnet_service(TriggerRequest())
+        rospy.sleep(0.5)
+        pose = {"wrist_extension": 0.2}
         self.node.move_to_pose(pose)
-
+        rospy.sleep(0.1)
+        pose = {"joint_wrist_yaw": 3.0}
+        self.node.move_to_pose(pose)
+        pose = {"wrist_extension": 0.1}
+        self.node.move_to_pose(pose)
         pose = {"joint_lift": 0.4}
         self.node.move_to_pose(pose)
 
-        self.node.trigger_magnet_service(TriggerRequest())
-        rospy.sleep(1.0)
         # pose = {"gripper_aperture": 0.125}
         # self.node.move_to_pose(pose)
         return "succeeded"

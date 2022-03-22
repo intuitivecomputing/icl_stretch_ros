@@ -27,7 +27,7 @@ from smach_ros import (
 from sp_core.custom_states import *
 from sp_msgs.srv import Order, OrderRequest, OrderResponse
 from std_msgs.msg import Int16MultiArray
-from std_srvs.srv import Empty, Trigger, TriggerRequest
+from std_srvs.srv import Empty, Trigger, TriggerResponse
 from trajectory_msgs.msg import JointTrajectoryPoint
 from visualization_msgs.msg import Marker, MarkerArray
 
@@ -46,10 +46,16 @@ class StateMachineNode(hm.HelloNode):
         self.wrist_position = None
         self.lift_position = None
 
-        self.shelf_goal = ([-0.05, -0.2, 0.0], 0.0)
-        self.workstation_goal = ([1.3, 2.4, 0.0], 1.57)
+        self.shelf_goal = (
+            [1.1, -0.707, 0.0],
+            -1.57,
+        )  # ([-0.05, -0.2, 0.0], 0.0)
+        self.workstation_goal = (
+            [4.5, -0.05, 0.0],
+            -1.57,
+        )  # ([1.3, 2.4, 0.0], 1.57)
         self.marker_list = [80]
-        self.is_start = False
+        self.is_start = True
 
         self.vis_marker_array = MarkerArray()
 
@@ -104,7 +110,7 @@ class StateMachineNode(hm.HelloNode):
         return res
 
     def trigger_start_execution_service_callback(self, req):
-        res = OrderResponse()
+        res = TriggerResponse()
         res.success = True
         res.message = "Execution start."
         self.is_start = True
@@ -175,21 +181,72 @@ class StateMachineNode(hm.HelloNode):
         )
         return mat
 
+    def detect_debug_fsm(self):
+        sm = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
+        with sm:
+            StateMachine.add(
+                "MODE_POSITION",
+                ServiceState("/switch_to_position_mode", Trigger),
+                transitions={"succeeded": "PRESEARCH"},
+            )
+            StateMachine.add(
+                "PRESEARCH",
+                PreSearchState(self),
+                transitions={
+                    "succeeded": "SEARCH_MARKERS",
+                    "aborted": "PRESEARCH",
+                },
+            )
+            StateMachine.add(
+                "SEARCH_MARKERS",
+                SearchMarkersState(self.marker_list),
+                transitions={
+                    "detected": "PREDETECT",
+                    "undetected": "SEARCH_MARKERS",
+                },
+                remapping={"detected_marker_id": "detected_marker_id"},
+            )
+            StateMachine.add(
+                "PREDETECT",
+                PreDetectState(self),
+                transitions={
+                    "succeeded": "DETECT",
+                },
+                remapping={"detected_marker_id": "detected_marker_id"},
+            )
+            StateMachine.add(
+                "DETECT",
+                DetectState(self),
+                transitions={"succeeded": "succeeded", "aborted": "aborted"},
+                remapping={
+                    "detected_marker_id": "detected_marker_id",
+                    "target": "target",
+                    "target_frame": "target_frame",
+                },
+            )
+
+        return sm
+
     def grasp_fsm(self):
         sm = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
         with sm:
             StateMachine.add(
-                "PREMODE_NAVIGATION",
-                ServiceState("/switch_to_navigation_mode", Trigger),
-                transitions={"succeeded": "GLOBAL_LOCALIZATION"},
+                "PRE_GOTO_SHELF_2",
+                PreMoveState(self),
+                transitions={"succeeded": "GOTO_SHELF_2"},
             )
+            # StateMachine.add(
+            #     "PRE_MODE_NAVIGATION",
+            #     ServiceState("/switch_to_navigation_mode", Trigger),
+            #     transitions={"succeeded": "GLOBAL_LOCALIZATION_2"},
+            # )
+            # StateMachine.add(
+            #     "GLOBAL_LOCALIZATION_2",
+            #     ServiceState("/global_localization", Empty),
+            #     transitions={"succeeded": "GOTO_SHELF_2"},
+            # )
             StateMachine.add(
-                "GLOBAL_LOCALIZATION",
-                ServiceState("/global_localization", Empty),
-                transitions={"succeeded": "GOTO_SHELF"},
-            )
-            StateMachine.add(
-                "GOTO_SHELF",
+                "GOTO_SHELF_2",
                 SimpleActionState(
                     "/move_base",
                     MoveBaseAction,
@@ -197,7 +254,7 @@ class StateMachineNode(hm.HelloNode):
                 ),
                 transitions={
                     "succeeded": "MODE_POSITION",
-                    "aborted": "GLOBAL_LOCALIZATION",
+                    "aborted": "PRE_GOTO_SHELF_2",
                 },
             )
             StateMachine.add(
@@ -280,13 +337,13 @@ class StateMachineNode(hm.HelloNode):
             StateMachine.add(
                 "PREMOVE",
                 PreMoveState(self),
-                transitions={"succeeded": "MODE_NAVIGATION"},
-            )
-            StateMachine.add(
-                "MODE_NAVIGATION",
-                ServiceState("/switch_to_navigation_mode", Trigger),
                 transitions={"succeeded": "succeeded"},
             )
+            # StateMachine.add(
+            #     "POST_MODE_NAVIGATION",
+            #     ServiceState("/switch_to_navigation_mode", Trigger),
+            #     transitions={"succeeded": "succeeded"},
+            # )
 
         return sm
 
@@ -301,25 +358,15 @@ class StateMachineNode(hm.HelloNode):
             StateMachine.add(
                 "PREMOVE",
                 PreMoveState(self),
-                transitions={"succeeded": "MODE_NAVIGATION"},
-            )
-            StateMachine.add(
-                "MODE_NAVIGATION",
-                ServiceState("/switch_to_navigation_mode", Trigger),
-                transitions={"succeeded": "GLOBAL_LOCALIZATION"},
-            )
-            StateMachine.add(
-                "GLOBAL_LOCALIZATION",
-                ServiceState("/global_localization", Empty),
                 transitions={"succeeded": "WAIT_FOR_ORDER"},
             )
             StateMachine.add(
                 "WAIT_FOR_ORDER",
                 WaitForOrderState(self),
-                transitions={"idle": "WAIT_FOR_ORDER", "start": "GOTO_SHELF"},
+                transitions={"idle": "WAIT_FOR_ORDER", "start": "GOTO_SHELF_1"},
             )
             StateMachine.add(
-                "GOTO_SHELF",
+                "GOTO_SHELF_1",
                 SimpleActionState(
                     "/move_base",
                     MoveBaseAction,
@@ -327,7 +374,7 @@ class StateMachineNode(hm.HelloNode):
                 ),
                 transitions={
                     "succeeded": "GRASP_SUB",
-                    "aborted": "GLOBAL_LOCALIZATION",
+                    "aborted": "PREMOVE",
                 },
             )
 
@@ -337,7 +384,7 @@ class StateMachineNode(hm.HelloNode):
                 grasp_sub_sm,
                 transitions={
                     "succeeded": "GOTO_WORKSTATION",
-                    "aborted": "GLOBAL_LOCALIZATION",
+                    "aborted": "PREMOVE",
                 },
             )
             StateMachine.add(
@@ -347,7 +394,7 @@ class StateMachineNode(hm.HelloNode):
                     MoveBaseAction,
                     goal=self.make_move_base_goal(*self.workstation_goal),
                 ),
-                # transitions={"succeeded": "END"},
+                transitions={"succeeded": "PREMOVE"},
             )
 
         return sm
@@ -370,7 +417,6 @@ class StateMachineNode(hm.HelloNode):
         rospy.loginfo(
             f"Node {self.node_name} connected to {service_name} service."
         )
-
         self.switch_to_position_mode_service = rospy.ServiceProxy(
             service_name, Trigger
         )
@@ -380,11 +426,18 @@ class StateMachineNode(hm.HelloNode):
         rospy.loginfo(
             f"Node {self.node_name} connected to {service_name} service."
         )
-
         self.switch_to_navigation_mode_service = rospy.ServiceProxy(
             service_name, Trigger
         )
 
+        service_name = "/global_localization"
+        rospy.wait_for_service(service_name)
+        rospy.loginfo(
+            f"Node {self.node_name} connected to {service_name} service."
+        )
+        self.localization_service = rospy.ServiceProxy(service_name, Empty)
+
+        # sm = self.detect_debug_fsm()
         # sm = self.grasp_fsm()
         sm = self.generate_fsm()
 
@@ -399,6 +452,10 @@ class StateMachineNode(hm.HelloNode):
 
         # Wait for ctrl-c to stop the application
         rospy.spin()
+        if sm is not None:
+            sm.request_preempt()
+        if sis is not None:
+            sis.stop()
 
 
 if __name__ == "__main__":
@@ -408,4 +465,5 @@ if __name__ == "__main__":
         node = StateMachineNode()
         node.main()
     except KeyboardInterrupt:
+
         rospy.loginfo("interrupt received, so shutting down")

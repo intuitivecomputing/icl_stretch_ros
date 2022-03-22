@@ -13,12 +13,12 @@ TebLocalPlannerROS:
     vertices: [[0.05,0.175],[-0.30,0.175],[-0.30,-0.175],[0.05,-0.175]]
   
   xy_goal_tolerance: 0.2
-  yaw_goal_tolerance: 0.2
+  yaw_goal_tolerance: 0.1
 
-  min_obstacle_dist: 0.01 
-  inflation_dist: 0.0
+  min_obstacle_dist: 0.05
+  inflation_dist: 0.05
   include_dynamic_obstacles: true
-  dynamic_obstacle_inflation_dist: 0.1
+  dynamic_obstacle_inflation_dist: 0.05
   costmap_obstacles_behind_robot_dist: 0.35
 
 
