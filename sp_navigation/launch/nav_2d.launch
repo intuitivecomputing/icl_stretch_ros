@@ -3,12 +3,12 @@
   The nodes needed for navigation are map_server, octomap_server, amcl, and move_base.-->
 
     <!-- Map name -->
-    <arg name="map" default="map_328_narrow" />
+    <arg name="map" default="map_239" />
     <!-- Move_base configuration folder. -->
     <arg name="move_base_config" value="2d" />
 
     <!-- Robot sensor topic mapping-->
-    <arg name="laser_topic" default="scan_filtered" />
+    <arg name="laser_topic" default="scan" />
     <arg name="pointcloud_topic" default="/camera/depth/color/points" />
     <arg name="cmd_vel_topic" default="/stretch/cmd_vel" />
     <arg name="odom_topic" default="/odom" />
