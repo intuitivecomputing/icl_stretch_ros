@@ -45,6 +45,9 @@
 
     <node pkg="robot_face" type="serve.py" name="robot_face_node" />
 
+    <!-- Record audio -->
+    <!-- <include file="$(find audio_capture)/launch/capture.launch" /> -->
+
     <!-- <node pkg="laser" type="laser_node" name="laser_node" output="screen"/> -->
 
 </launch>
