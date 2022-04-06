@@ -13,8 +13,9 @@ from pydub import AudioSegment
 from pydub.playback import play
 from sp_msgs.srv import Speech, SpeechResponse
 from std_srvs.srv import SetBool, SetBoolRequest
-from TTS.utils.manage import ModelManager
-from TTS.utils.synthesizer import Synthesizer
+
+# from TTS.utils.manage import ModelManager
+# from TTS.utils.synthesizer import Synthesizer
 
 # def speak(text):
 #     from gtts import gTTS
@@ -26,26 +27,26 @@ from TTS.utils.synthesizer import Synthesizer
 #     play_and_delete(filename)
 
 
-def make_synthesizer():
-    model_name = "tts_models/en/ljspeech/tacotron2-DDC"
-    path = Path(__file__).parent / "../.models.json"
-    manager = ModelManager(path)
-    model_path, config_path, model_item = manager.download_model(model_name)
-    vocoder_name = model_item["default_vocoder"]
-    vocoder_path, vocoder_config_path, _ = manager.download_model(vocoder_name)
-    # load models
-    synthesizer = Synthesizer(
-        model_path,
-        config_path,
-        tts_speakers_file=None,
-        tts_languages_file=None,
-        vocoder_checkpoint=vocoder_path,
-        vocoder_config=vocoder_config_path,
-        encoder_checkpoint=None,
-        encoder_config=None,
-        use_cuda=False,
-    )
-    return synthesizer
+# def make_synthesizer():
+#     model_name = "tts_models/en/ljspeech/tacotron2-DDC"
+#     path = Path(__file__).parent / "../.models.json"
+#     manager = ModelManager(path)
+#     model_path, config_path, model_item = manager.download_model(model_name)
+#     vocoder_name = model_item["default_vocoder"]
+#     vocoder_path, vocoder_config_path, _ = manager.download_model(vocoder_name)
+#     # load models
+#     synthesizer = Synthesizer(
+#         model_path,
+#         config_path,
+#         tts_speakers_file=None,
+#         tts_languages_file=None,
+#         vocoder_checkpoint=vocoder_path,
+#         vocoder_config=vocoder_config_path,
+#         encoder_checkpoint=None,
+#         encoder_config=None,
+#         use_cuda=False,
+#     )
+#     return synthesizer
 
 
 class SpeechSynthesizer(object):
