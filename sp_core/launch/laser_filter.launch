@@ -32,9 +32,9 @@
                 output_frame: laser
                 # true: no points in the box, false: no points outside the box
                 negative: false
-                min_x: -2.5
+                min_x: -2.0
                 max_x: 0.0
-                min_y: -1.1
+                min_y: -0.8
                 max_y: 0.8
                 min_z: -1
                 max_z: 1
