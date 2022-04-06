@@ -50,10 +50,11 @@ class StateMachineNode(hm.HelloNode):
             [1.1, -0.707, 0.0],
             -1.57,
         )  # ([-0.05, -0.2, 0.0], 0.0)
-        self.workstation_goal = (
-            [4.5, -0.05, 0.0],
-            -1.57,
-        )  # ([1.3, 2.4, 0.0], 1.57)
+        # self.workstation_goal = (
+        #     [4.7, -0.05, 0.0],
+        #     -1.57,
+        # )  # ([1.3, 2.4, 0.0], 1.57)
+        self.workstation_goal = ([4.55, -0.1, 0.0], 3.14)
         self.marker_list = [80]
         self.is_start = True
 
@@ -399,6 +400,46 @@ class StateMachineNode(hm.HelloNode):
 
         return sm
 
+    def test_fsm(self):
+        sm = StateMachine(outcomes=["succeeded", "aborted", "preempted"])
+        with sm:
+            StateMachine.add(
+                "PREMOVE",
+                PreMoveState(self),
+                transitions={
+                    "succeeded": "GOTO_WORKSTATION",
+                },
+            )
+            StateMachine.add(
+                "GOTO_WORKSTATION",
+                SimpleActionState(
+                    "/move_base",
+                    MoveBaseAction,
+                    goal=self.make_move_base_goal(*self.workstation_goal),
+                ),
+                transitions={
+                    "succeeded": "succeeded",
+                    "aborted": "aborted",
+                    "preempted": "preempted",
+                },
+            )
+
+            # StateMachine.add(
+            #     "GOTO_SHELF",
+            #     SimpleActionState(
+            #         "/move_base",
+            #         MoveBaseAction,
+            #         goal=self.make_move_base_goal(*self.shelf_goal),
+            #     ),
+            #     transitions={
+            #         "succeeded": "PREMOVE",
+            #         "aborted": "aborted",
+            #         "preempted": "preempted",
+            #     },
+            # )
+
+        return sm
+
     def main(self):
         hm.HelloNode.main(
             self,
@@ -439,7 +480,8 @@ class StateMachineNode(hm.HelloNode):
 
         # sm = self.detect_debug_fsm()
         # sm = self.grasp_fsm()
-        sm = self.generate_fsm()
+        # sm = self.generate_fsm()
+        sm = self.test_fsm()
 
         sis = IntrospectionServer("state_machine", sm, "/state_machine")
         sis.start()

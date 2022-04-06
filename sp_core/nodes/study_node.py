@@ -225,7 +225,8 @@ class StudyNode(hm.HelloNode):
 
     def random_clean(self):
         pos = np.random.choice(
-            ["mid", "left", "right", "left_side", "right_side"]
+            ["mid", "left", "right"]
+            # ["mid", "left", "right", "left_side", "right_side"]
         )
         # pos = np.random.choice(["mid"])
 
