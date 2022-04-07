@@ -1,5 +1,6 @@
 <launch>
     <arg name="cloud_out" default="/cloud_cropped"/>
+    <arg name="sim" default="false"/>
     <node pkg="laser_filters" type="scan_to_cloud_filter_chain" name="laser_cloud_filter">
         <param name="target_frame" type="string" value="laser" />
         <!-- <rosparam command="load" file="$(find sp_core)/config/my_laser_config.yaml" /> -->
@@ -18,28 +19,27 @@
         <remap from="cloud_filtered" to="cloud" />
     </node>
 
-    <group ns="/pcl_filters">
+    <!-- <group ns="/pcl_filters"> -->
 
-        <!-- PCL Manager -->
-        <node pkg="nodelet" type="nodelet" name="cropbox_filter_pcl_manager" args="manager" output="screen" />
+    <!-- PCL Manager -->
+    <node pkg="nodelet" type="nodelet" name="cropbox_filter_pcl_manager" args="manager" output="screen" />
+    <!-- A CropBox filter to avoid self-detection -->
+    <node pkg="nodelet" type="nodelet" name="ped_isolation" args="load pcl/CropBox cropbox_filter_pcl_manager" output="screen">
+        <remap from="~input" to="/cloud" />
+        <remap from="~output" to="$(arg cloud_out)" />
+        <rosparam>
+            input_frame: laser
+            output_frame: base_link
+            # true: no points in the box, false: no points outside the box
+            negative: false
+            min_x: -2.0
+            max_x: 0.0
+            min_y: -0.8
+            max_y: 0.8
+            min_z: -1
+            max_z: 1
+        </rosparam>
+    </node>
 
-        <!-- A CropBox filter to avoid self-detection -->
-        <node pkg="nodelet" type="nodelet" name="ped_isolation" args="load pcl/CropBox cropbox_filter_pcl_manager" output="screen">
-            <remap from="~input" to="/cloud" />
-            <remap from="~output" to="$(arg cloud_out)" />
-            <rosparam>
-                input_frame: laser
-                output_frame: laser
-                # true: no points in the box, false: no points outside the box
-                negative: false
-                min_x: -2.0
-                max_x: 0.0
-                min_y: -0.8
-                max_y: 0.8
-                min_z: -1
-                max_z: 1
-            </rosparam>
-        </node>
-
-    </group>
+    <!-- </group> -->
 </launch>
