@@ -5,7 +5,7 @@
     <!-- publish tf of respeaker -->
     <arg name="publish_tf" default="true" />
     <!-- launch sound_play node -->
-    <arg name="launch_soundplay" default="true" />
+    <arg name="launch_soundplay" default="false" />
     <!-- input speech topic of speech_to_text.py -->
     <arg name="audio" default="speech_audio" />
     <!-- output text topic of speech_to_text.py -->
