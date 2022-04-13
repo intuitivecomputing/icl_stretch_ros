@@ -57,26 +57,26 @@ class SpeechSynthesizer(object):
     buffer = {}
 
     def __init__(self):
-        self.out_path = "/home/hello-robot/catkin_ws/tts_output.wav"
-        self.buffer_path = Path(__file__).parent / "../buffer.pickle"
-        # self.voice_thread = Thread(target=self.play_and_delete)
+        # self.out_path = "/home/hello-robot/catkin_ws/tts_output.wav"
+        # self.buffer_path = Path(__file__).parent / "../buffer.pickle"
+        # # self.voice_thread = Thread(target=self.play_and_delete)
 
-        # load buffer
-        if SpeechSynthesizer.buffer == {} and self.buffer_path.is_file():
-            with open(self.buffer_path, "rb") as handle:
-                SpeechSynthesizer.buffer = pickle.load(handle)
-        # print(SpeechSynthesizer.buffer.keys())
+        # # load buffer
+        # if SpeechSynthesizer.buffer == {} and self.buffer_path.is_file():
+        #     with open(self.buffer_path, "rb") as handle:
+        #         SpeechSynthesizer.buffer = pickle.load(handle)
+        # # print(SpeechSynthesizer.buffer.keys())
 
         SpeechSynthesizer.engine.setProperty("volume", 1.0)
         SpeechSynthesizer.engine.setProperty("rate", 170)
 
-    def __del__(self):
-        with open(self.buffer_path, "wb") as handle:
-            pickle.dump(
-                SpeechSynthesizer.buffer,
-                handle,
-                protocol=pickle.HIGHEST_PROTOCOL,
-            )
+    # def __del__(self):
+    #     with open(self.buffer_path, "wb") as handle:
+    #         pickle.dump(
+    #             SpeechSynthesizer.buffer,
+    #             handle,
+    #             protocol=pickle.HIGHEST_PROTOCOL,
+    #         )
 
     # def speak(self, text):
     #     # play = lambda: playsound(self.out_path)
