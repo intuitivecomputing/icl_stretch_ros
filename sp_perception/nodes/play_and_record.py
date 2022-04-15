@@ -80,8 +80,13 @@ def batch(folder: str):
     with typer.progressbar(folder.iterdir()) as progress:
         for subject in progress:
             if subject.is_dir():
-                typer.echo(subject)
+                subject_id = subject.stem
+                typer.echo(subject_id)
+                for i, bag in enumerate((subject / 'raw').glob("*.bag")):
+                    # main(subject.stem, )
+                    main(name=subject_id + '-' + str(i+1), bag = bag)
+
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()
