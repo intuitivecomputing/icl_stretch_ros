@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import json
 import pickle
 from contextlib import contextmanager
@@ -45,27 +46,32 @@ def annotate_xy(x_in, y_in, xy_text, ax=None):
     ax.annotate(text, xy=(x_in, y_in), xytext=xy_text, **kw)
 
 
-def annotates(x, y, indices, ax=None):
+def annotates(x, y, indices, ax=None, y_text=None):
     plt.plot(x[indices], y[indices], "x")
     x_text = np.linspace(0, 1, len(indices))
     for i, idx in enumerate(indices):
-        annotate_xy(x[idx], y[idx], xy_text=(x_text[i], 0.3), ax=ax)
+        annotate_xy(x[idx], y[idx], xy_text=(x_text[i], y_text or 0.3), ax=ax)
+
+
+def find_closest_dist(data: np.ndarray):
+    t = data[:, 0]
+    x = data[:, 1]
+    y = data[:, 2]
+    vel_x = data[:, 3]
+    vel_y = data[:, 4]
+    dist = np.sqrt(data[:, 1] ** 2 + data[:, 2] ** 2)
+    angle = np.rad2deg(np.arctan2(data[:, 2], data[:, 1]))
+    # find closest dist
+    peaks, props = find_peaks(
+        -dist, height=-1, distance=10, width=20, prominence=0.08
+    )
+    return t, dist, peaks
 
 
 def PeakAnalysis(data, output_dir, filename):
     # pos = np.asarray([datum[1:] for datum in data])
-    pos = np.asarray(data)
-    t = pos[:, 0]
-    x = pos[:, 1]
-    y = pos[:, 2]
-    vel_x = pos[:, 3]
-    vel_y = pos[:, 4]
-
-    dist = np.sqrt(pos[:, 1] ** 2 + pos[:, 2] ** 2)
-    angle = np.rad2deg(np.arctan2(pos[:, 2], pos[:, 1]))
-    # find closest dist
-    peaks, props = find_peaks(-dist, height=-1, width=20, prominence=0.08)
-
+    data = np.asarray(data)
+    t, dist, peaks = find_closest_dist(data)
     # plot dist
     with canvas(Path(output_dir) / f"{filename}.png") as ax:
         ax.plot(t, dist)
@@ -84,6 +90,10 @@ def PeakAnalysis(data, output_dir, filename):
     #     )
 
 
+app = typer.Typer()
+
+
+@app.command()
 def main(file: str):
     file = Path.home() / "catkin_ws" / "study_results" / (file + ".json")
     with open(file, "rb") as f:
@@ -91,5 +101,32 @@ def main(file: str):
     PeakAnalysis(data, file.parent, file.stem)
 
 
+@app.command()
+def batch(folder: str):
+    data = {}
+    folder = Path(folder)
+    file_list = sorted(folder.glob("*.json"))
+    file_list = [f.stem for f in file_list]
+    print(f"Processing {file_list}")
+    id_list = set([f.split("-")[0] for f in file_list])
+    colors = ["red", "green", "blue"]
+
+    with typer.progressbar(id_list) as progress:
+        for id in progress:
+            typer.echo(f"Processing participant #{id}")
+            with canvas(folder / id) as ax:
+                ax.set_xlabel("Time (nsec)")
+                ax.set_ylabel("Distance (m)")
+                id_file_list = sorted([f for f in file_list if id in f])
+                for i, file in enumerate(id_file_list):
+                    with open(folder / (file + ".json"), "rb") as f:
+                        data = json.load(f)
+                    data = np.asarray(data)
+                    t, dist, peaks = find_closest_dist(data)
+                    t = t - t[0]
+                    ax.plot(t, dist, color=colors[i])
+                    annotates(t, dist, peaks, ax=ax, y_text=0.1 * (i + 1))
+
+
 if __name__ == "__main__":
-    typer.run(main)
+    app()

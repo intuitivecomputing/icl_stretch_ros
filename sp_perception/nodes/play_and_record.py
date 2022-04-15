@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+from pathlib import Path
 
 import rosbag
 import rospy
@@ -7,7 +8,10 @@ import typer
 
 from leg_recorder import VelocityTracker
 
+app = typer.Typer()
 
+
+@app.command()
 def main(name: str, bag: str):
     rospy.init_node("play_and_record")
     bagfn = bag
@@ -68,6 +72,15 @@ def main(name: str, bag: str):
         rospy.sleep(loop_sleep)
     vt.on_exit()
     bag.close()
+
+
+@app.command()
+def batch(folder: str):
+    folder = Path(folder)
+    with typer.progressbar(folder.iterdir()) as progress:
+        for subject in progress:
+            if subject.is_dir():
+                typer.echo(subject)
 
 
 if __name__ == "__main__":
