@@ -4,6 +4,7 @@ from pathlib import Path
 
 import rosbag
 import rospy
+import tqdm
 import typer
 
 from leg_recorder import VelocityTracker
@@ -30,7 +31,9 @@ def main(name: str, bag: str):
 
     for topic, msg, t in bag.read_messages():
         if topic not in pubs:
-            pub = rospy.Publisher(topic, type(msg), latch=("map" in topic))
+            pub = rospy.Publisher(
+                topic, type(msg), queue_size=10, latch=("map" in topic)
+            )
             pubs[topic] = pub
 
         if t != last:
@@ -45,7 +48,9 @@ def main(name: str, bag: str):
     start = rospy.Time.now()
     sim_start = None
     while not rospy.is_shutdown():
-        for t, msgs in data:
+        for t, msgs in tqdm.tqdm(
+            data, position=0, leave=False, desc=f"#{name}"
+        ):
             now = rospy.Time.now()
             if sim_start is None:
                 sim_start = t
@@ -77,15 +82,19 @@ def main(name: str, bag: str):
 @app.command()
 def batch(folder: str):
     folder = Path(folder)
-    with typer.progressbar(folder.iterdir()) as progress:
-        for subject in progress:
-            if subject.is_dir():
-                subject_id = subject.stem
-                typer.echo(subject_id)
-                for i, bag in enumerate((subject / "raw").glob("*.bag")):
-                    curr_id = subject_id + "-" + str(i + 1)
-                    typer.echo(curr_id)
-                    main(name=curr_id, bag=bag)
+    # with typer.progressbar(folder.iterdir()) as progress:
+    #     for subject in progress:
+    for subject in (
+        pbar := tqdm.tqdm(list(folder.iterdir()), position=0, leave=False)
+    ):
+        if subject.is_dir():
+            pbar.set_description(f"#{subject.stem}")
+            subject_id = subject.stem
+            for i, bag in enumerate((subject / "raw").glob("*.bag")):
+                if bag.stem[0] == ".":
+                    continue
+                curr_id = subject_id + "-" + str(i + 1)
+                main(name=curr_id, bag=bag)
 
 
 if __name__ == "__main__":
