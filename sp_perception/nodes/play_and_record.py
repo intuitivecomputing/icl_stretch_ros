@@ -82,10 +82,10 @@ def batch(folder: str):
             if subject.is_dir():
                 subject_id = subject.stem
                 typer.echo(subject_id)
-                for i, bag in enumerate((subject / 'raw').glob("*.bag")):
-                    # main(subject.stem, )
-                    main(name=subject_id + '-' + str(i+1), bag = bag)
-
+                for i, bag in enumerate((subject / "raw").glob("*.bag")):
+                    curr_id = subject_id + "-" + str(i + 1)
+                    typer.echo(curr_id)
+                    main(name=curr_id, bag=bag)
 
 
 if __name__ == "__main__":
