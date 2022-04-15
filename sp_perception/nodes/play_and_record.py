@@ -68,3 +68,7 @@ def main(name: str, bag: str):
         rospy.sleep(loop_sleep)
     vt.on_exit()
     bag.close()
+
+
+if __name__ == "__main__":
+    typer.run(main)
