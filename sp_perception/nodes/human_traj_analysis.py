@@ -1,8 +1,12 @@
+import json
+import pickle
 from contextlib import contextmanager
+from copyreg import pickle
 from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+import typer
 from matplotlib import pyplot as plt
 from scipy.signal import find_peaks
 
@@ -48,8 +52,9 @@ def annotates(x, y, indices, ax=None):
         annotate_xy(x[idx], y[idx], xy_text=(x_text[i], 0.3), ax=ax)
 
 
-def PeakAnalysis(data, output_dir):
-    pos = np.asarray([datum[1:] for datum in data])
+def PeakAnalysis(data, output_dir, filename):
+    # pos = np.asarray([datum[1:] for datum in data])
+    pos = np.asarray(data)
     t = pos[:, 0]
     x = pos[:, 1]
     y = pos[:, 2]
@@ -59,12 +64,10 @@ def PeakAnalysis(data, output_dir):
     dist = np.sqrt(pos[:, 1] ** 2 + pos[:, 2] ** 2)
     angle = np.rad2deg(np.arctan2(pos[:, 2], pos[:, 1]))
     # find closest dist
-    peaks, props = find_peaks(-dist, height=-1, width=20, prominence=0.1)
+    peaks, props = find_peaks(-dist, height=-1, width=20, prominence=0.08)
 
     # plot dist
-    with canvas(
-        Path(output_dir) / f"results-{datetime.now().strftime('%m%d%H%M')}.png"
-    ) as ax:
+    with canvas(Path(output_dir) / f"{filename}.png") as ax:
         ax.plot(t, dist)
         ax.set_xlabel("Time (nsec)")
         ax.set_ylabel("Distance (m)")
@@ -79,3 +82,14 @@ def PeakAnalysis(data, output_dir):
     #         x,
     #         y,
     #     )
+
+
+def main(file: str):
+    file = Path.home() / "catkin_ws" / "study_results" / (file + ".json")
+    with open(file, "rb") as f:
+        data = json.load(f)
+    PeakAnalysis(data, file.parent, file.stem)
+
+
+if __name__ == "__main__":
+    typer.run(main)

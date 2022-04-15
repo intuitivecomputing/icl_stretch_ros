@@ -3,6 +3,7 @@
 import dataclasses
 import json
 import math
+import pickle
 from datetime import datetime
 from pathlib import Path
 
@@ -125,7 +126,7 @@ class PersonEstimate(object):
 
     def dump(self):
         return (
-            self.id,
+            # self.id,
             self.timestamp.to_sec(),
             self.position.x,
             self.position.y,
@@ -171,22 +172,35 @@ class VelocityTracker(object):
             self.record()
             rate.sleep()
 
+        self.on_exit()
+
+    def spin_once(self):
+        # Remove People Older Than timeout param
+        now = rospy.Time.now()
+        for pid in list(self.people):
+            if now - self.people[pid].timestamp > self.TIMEOUT:
+                del self.people[pid]
+        self.publish()
+        self.record()
+
+    def on_exit(self):
+
         output_dir = (
-            Path.home()
-            / "catkin_ws"
-            / "study_results"
-            / f"results-{datetime.now().strftime('%m%d%H%M')}.json"
+            Path.home() / "catkin_ws" / "study_results" / f"{self.name}"
         )
         self.dump(output_dir)
 
         PeakAnalysis(
             self.trajectory,
             output_dir=Path.home() / "catkin_ws" / "study_results",
+            filename=self.name,
         )
 
     def dump(self, filename):
-        with open(filename, "w") as fp:
+        with open(str(filename) + ".json", "w") as fp:
             json.dump(self.trajectory, fp, indent=4)
+        # with open(str(filename) + ".pkl", "wb") as fp:
+        #     pickle.dump(self.trajectory, fp)
 
     def record(self):
         for p in self.people.values():
