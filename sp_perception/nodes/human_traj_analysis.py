@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import typer
 from matplotlib import pyplot as plt
-from scipy.signal import find_peaks
+from scipy.signal import find_peaks, find_peaks_cwt
 
 
 @contextmanager
@@ -63,7 +63,7 @@ def find_closest_dist(data: np.ndarray):
     angle = np.rad2deg(np.arctan2(data[:, 2], data[:, 1]))
     # find closest dist
     peaks, props = find_peaks(
-        -dist, height=-1, distance=10, width=20, prominence=0.08
+        -dist, height=-1, distance=300, width=10, prominence=0.08
     )
     return t, dist, peaks
 
@@ -72,12 +72,14 @@ def PeakAnalysis(data, output_dir, filename):
     # pos = np.asarray([datum[1:] for datum in data])
     data = np.asarray(data)
     t, dist, peaks = find_closest_dist(data)
+    t = t / 1000000000  # s
     # plot dist
     with canvas(Path(output_dir) / f"{filename}.png") as ax:
         ax.plot(t, dist)
-        ax.set_xlabel("Time (nsec)")
+        ax.set_xlabel("Time (s)")
         ax.set_ylabel("Distance (m)")
         annotates(t, dist, peaks, ax=ax)
+    return t, dist, peaks
 
     # with canvas(
     #     Path(output_dir)
