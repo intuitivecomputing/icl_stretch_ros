@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import json
 import sys
 from pathlib import Path
 
@@ -6,14 +7,16 @@ import rosbag
 import rospy
 import tqdm
 import typer
+from tqdm.contrib.logging import logging_redirect_tqdm
 
+from human_traj_analysis import PeakAnalysis
 from leg_recorder import VelocityTracker
 
 app = typer.Typer()
 
 
 @app.command()
-def main(name: str, bag: str):
+def main(name: str, bag: str, speed: float = 1):
     rospy.init_node("play_and_record")
     bagfn = bag
     should_loop = False
@@ -37,6 +40,7 @@ def main(name: str, bag: str):
             pubs[topic] = pub
 
         if t != last:
+            # t = rospy.Time.from_sec(t.to_sec() / speed)  # speed up 4x
             data.append((t, []))
             last = t
         data[-1][1].append((topic, msg))
@@ -49,7 +53,7 @@ def main(name: str, bag: str):
     sim_start = None
     while not rospy.is_shutdown():
         for t, msgs in tqdm.tqdm(
-            data, position=0, leave=False, desc=f"#{name}"
+            data, position=0, leave=False, desc=f"##{name}"
         ):
             now = rospy.Time.now()
             if sim_start is None:
@@ -58,7 +62,7 @@ def main(name: str, bag: str):
                 real_time = now - start
                 sim_time = t - sim_start
                 if sim_time > real_time:
-                    rospy.sleep(sim_time - real_time)
+                    rospy.sleep((sim_time - real_time))
 
             for (topic, msg) in msgs:
                 if "header" in dir(msg):
@@ -80,21 +84,50 @@ def main(name: str, bag: str):
 
 
 @app.command()
+def from_json(file: str):
+    with open(file, "rb") as fp:
+        trajectory = json.load(fp)
+    print(f"Saving {Path(file).stem} to {Path(file).parent}")
+    t, dist, peaks = PeakAnalysis(
+        trajectory,
+        output_dir=Path(file).parent,
+        filename=Path(file).stem,
+    )
+    print(peaks)
+
+
+@app.command()
+def batch_json(folder: str):
+    folder = Path(folder)
+    for file in (
+        pbar := tqdm.tqdm(
+            sorted(list(folder.iterdir())), position=0, leave=False
+        )
+    ):
+        if file.match("*.json"):
+            from_json(str(file))
+            # print(file)
+
+
+@app.command()
 def batch(folder: str):
     folder = Path(folder)
     # with typer.progressbar(folder.iterdir()) as progress:
     #     for subject in progress:
     for subject in (
-        pbar := tqdm.tqdm(list(folder.iterdir()), position=0, leave=False)
+        pbar := tqdm.tqdm(
+            sorted(list(folder.iterdir())), position=0, leave=False
+        )
     ):
         if subject.is_dir():
             pbar.set_description(f"#{subject.stem}")
             subject_id = subject.stem
-            for i, bag in enumerate((subject / "raw").glob("*.bag")):
+            for i, bag in enumerate(sorted((subject / "raw").glob("*.bag"))):
                 if bag.stem[0] == ".":
                     continue
                 curr_id = subject_id + "-" + str(i + 1)
-                main(name=curr_id, bag=bag)
+                with logging_redirect_tqdm():
+                    main(name=curr_id, bag=bag)
 
 
 if __name__ == "__main__":
