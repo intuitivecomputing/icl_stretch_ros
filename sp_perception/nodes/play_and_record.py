@@ -58,7 +58,6 @@ def process(name: str, bag: str, speed: float = 1):
         return
 
     rospy.loginfo("Done read")
-    bag.close()
 
     vt = VelocityTracker(plot=False)
     vt.name = name
@@ -90,11 +89,12 @@ def process(name: str, bag: str, speed: float = 1):
                 break
             vt.spin_once()
         if not should_loop:
-            rospy.signal_shutdown("rospy shutdown")
+            # rospy.signal_shutdown("rospy shutdown")
             break
 
         rospy.sleep(loop_sleep)
     vt.on_exit()
+    bag.close()
 
 
 @app.command()
@@ -107,6 +107,7 @@ def from_json(file: str):
     with open(file, "rb") as fp:
         trajectory = json.load(fp)
     print(f"Saving {Path(file).stem} to {Path(file).parent}")
+    print(trajectory)
     t, dist, peaks = PeakAnalysis(
         trajectory,
         output_dir=Path(file).parent,
@@ -124,48 +125,53 @@ def batch_json(folder: str):
         )
     ):
         if file.match("*.json"):
-            from_json(str(file))
+            try:
+                from_json(str(file))
             # print(file)
+            except Exception as e:
+                print(e)
 
 
 @app.command()
-def batch(folder: str, start_from: str = None):
+def batch(folder: str, start_from: str = None, user_id: str = None):
     folder = Path(folder)
     # with typer.progressbar(folder.iterdir()) as progress:
     #     for subject in progress:
 
     subjects = sorted(list(folder.iterdir()))
+    subject_ids = [subject.stem for subject in subjects]
     if start_from is not None:
-        subject_ids = [subject.stem for subject in subjects]
         if start_from in subject_ids:
             start_from_index = subject_ids.index(start_from)
             rospy.loginfo(
                 f"Starting from subject {start_from}, index {start_from_index}."
             )
             subjects = subjects[start_from_index:]
+    elif user_id is not None:
+        if user_id in subject_ids:
+            index = subject_ids.index(user_id)
+            rospy.loginfo(f"Processing subject {user_id}, index {index}.")
+            subjects = [subjects[index]]
 
-    try:
-        for subject in (pbar := tqdm.tqdm(subjects, position=0, leave=True)):
-            if subject.is_dir():
-                pbar.set_description(f"#{subject.stem}")
-                subject_id = subject.stem
-                for i, bag in enumerate(
-                    sorted((subject / "raw").glob("*.bag"))
-                ):
-                    if bag.stem[0] == ".":
-                        continue
-                    curr_id = subject_id + "-" + str(i + 1)
-                    # with logging_redirect_tqdm():
-                    # try:
-                    process(name=curr_id, bag=bag)
-                    # except KeyboardInterrupt:
-                    #     raise typer.Exit()
-                    # except Exception as e:
-                    #     raise e
-    except Exception as e:
-        rospy.logerr(f"Exp: {e}")
-        raise typer.Exit()
-        # return
+    for subject in (pbar := tqdm.tqdm(subjects, position=0, leave=True)):
+        if subject.is_dir():
+            pbar.set_description(f"#{subject.stem}")
+            subject_id = subject.stem
+            for i, bag in enumerate(
+                sorted((subject / "raw").glob("[!.]*.bag"))
+            ):
+                # print(bag)
+                if bag.stem[0] == ".":
+                    continue
+
+                curr_id = subject_id + "-" + str(i + 1)
+                # with logging_redirect_tqdm():
+                # try:
+                process(name=curr_id, bag=bag)
+                # except KeyboardInterrupt:
+                #     raise typer.Exit()
+                # except Exception as e:
+                #     raise e
 
 
 if __name__ == "__main__":
