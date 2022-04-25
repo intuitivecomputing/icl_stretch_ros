@@ -46,7 +46,7 @@ def main(name: str, bag: str, speed: float = 1):
         data[-1][1].append((topic, msg))
     rospy.loginfo("Done read")
 
-    vt = VelocityTracker()
+    vt = VelocityTracker(plot=False)
     vt.name = name
 
     start = rospy.Time.now()

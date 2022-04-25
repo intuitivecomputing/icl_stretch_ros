@@ -137,7 +137,8 @@ class PersonEstimate(object):
 
 
 class VelocityTracker(object):
-    def __init__(self):
+    def __init__(self, plot=True):
+        self.plot = plot
         self.name = rospy.get_param("~name", "000000")
         self.people = {}
         self.trajectory = []
@@ -189,12 +190,12 @@ class VelocityTracker(object):
             Path.home() / "catkin_ws" / "study_results" / f"{self.name}"
         )
         self.dump(output_dir)
-
-        PeakAnalysis(
-            self.trajectory,
-            output_dir=Path.home() / "catkin_ws" / "study_results",
-            filename=self.name,
-        )
+        if self.plot:
+            PeakAnalysis(
+                self.trajectory,
+                output_dir=Path.home() / "catkin_ws" / "study_results",
+                filename=self.name,
+            )
 
     def dump(self, filename):
         with open(str(filename) + ".json", "w") as fp:
