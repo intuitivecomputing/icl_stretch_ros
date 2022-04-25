@@ -6,9 +6,12 @@ from copyreg import pickle
 from datetime import datetime
 from pathlib import Path
 
+import matplotlib
 import numpy as np
 import typer
 from matplotlib import pyplot as plt
+
+matplotlib.use("Agg")
 from scipy.signal import find_peaks, find_peaks_cwt
 
 
