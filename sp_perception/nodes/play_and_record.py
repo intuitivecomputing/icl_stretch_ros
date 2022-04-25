@@ -15,8 +15,7 @@ from leg_recorder import VelocityTracker
 app = typer.Typer()
 
 
-@app.command()
-def main(name: str, bag: str, speed: float = 1):
+def process(name: str, bag: str, speed: float = 1):
     rospy.init_node("play_and_record")
     bagfn = bag
     should_loop = False
@@ -26,25 +25,40 @@ def main(name: str, bag: str, speed: float = 1):
         rospy.logerr("No Bag specified!")
         exit(1)
 
-    bag = rosbag.Bag(bagfn)
     pubs = {}
     rospy.loginfo("Start read")
     last = None
     data = []
+    bag = None
 
-    for topic, msg, t in bag.read_messages():
-        if topic not in pubs:
-            pub = rospy.Publisher(
-                topic, type(msg), queue_size=10, latch=("map" in topic)
-            )
-            pubs[topic] = pub
+    try:
+        bag = rosbag.Bag(bagfn)
+        for topic, msg, t in bag.read_messages():
+            if topic not in pubs:
+                pub = rospy.Publisher(
+                    topic, type(msg), queue_size=10, latch=("map" in topic)
+                )
+                pubs[topic] = pub
 
-        if t != last:
-            # t = rospy.Time.from_sec(t.to_sec() / speed)  # speed up 4x
-            data.append((t, []))
-            last = t
-        data[-1][1].append((topic, msg))
+            if t != last:
+                # t = rospy.Time.from_sec(t.to_sec() / speed)  # speed up 4x
+                data.append((t, []))
+                last = t
+            data[-1][1].append((topic, msg))
+    # except KeyboardInterrupt:
+    #     rospy.logerr("Keyboard Interrupted")
+    #     if bag is not None:
+    #         bag.close()
+    #     raise typer.Exit()
+    except Exception as e:
+        if bag is not None:
+            bag.close()
+        rospy.logerr(f"Exp: {e} for {bagfn}")
+        # raise e
+        return
+
     rospy.loginfo("Done read")
+    bag.close()
 
     vt = VelocityTracker(plot=False)
     vt.name = name
@@ -53,7 +67,7 @@ def main(name: str, bag: str, speed: float = 1):
     sim_start = None
     while not rospy.is_shutdown():
         for t, msgs in tqdm.tqdm(
-            data, position=0, leave=False, desc=f"##{name}"
+            data, position=0, leave=True, desc=f"##{name}"
         ):
             now = rospy.Time.now()
             if sim_start is None:
@@ -76,11 +90,16 @@ def main(name: str, bag: str, speed: float = 1):
                 break
             vt.spin_once()
         if not should_loop:
+            rospy.signal_shutdown("rospy shutdown")
             break
 
         rospy.sleep(loop_sleep)
     vt.on_exit()
-    bag.close()
+
+
+@app.command()
+def main(name: str, bag: str, speed: float = 1):
+    process(name, bag, speed=speed)
 
 
 @app.command()
@@ -101,7 +120,7 @@ def batch_json(folder: str):
     folder = Path(folder)
     for file in (
         pbar := tqdm.tqdm(
-            sorted(list(folder.iterdir())), position=0, leave=False
+            sorted(list(folder.iterdir())), position=0, leave=True
         )
     ):
         if file.match("*.json"):
@@ -110,24 +129,43 @@ def batch_json(folder: str):
 
 
 @app.command()
-def batch(folder: str):
+def batch(folder: str, start_from: str = None):
     folder = Path(folder)
     # with typer.progressbar(folder.iterdir()) as progress:
     #     for subject in progress:
-    for subject in (
-        pbar := tqdm.tqdm(
-            sorted(list(folder.iterdir())), position=0, leave=False
-        )
-    ):
-        if subject.is_dir():
-            pbar.set_description(f"#{subject.stem}")
-            subject_id = subject.stem
-            for i, bag in enumerate(sorted((subject / "raw").glob("*.bag"))):
-                if bag.stem[0] == ".":
-                    continue
-                curr_id = subject_id + "-" + str(i + 1)
-                with logging_redirect_tqdm():
-                    main(name=curr_id, bag=bag)
+
+    subjects = sorted(list(folder.iterdir()))
+    if start_from is not None:
+        subject_ids = [subject.stem for subject in subjects]
+        if start_from in subject_ids:
+            start_from_index = subject_ids.index(start_from)
+            rospy.loginfo(
+                f"Starting from subject {start_from}, index {start_from_index}."
+            )
+            subjects = subjects[start_from_index:]
+
+    try:
+        for subject in (pbar := tqdm.tqdm(subjects, position=0, leave=True)):
+            if subject.is_dir():
+                pbar.set_description(f"#{subject.stem}")
+                subject_id = subject.stem
+                for i, bag in enumerate(
+                    sorted((subject / "raw").glob("*.bag"))
+                ):
+                    if bag.stem[0] == ".":
+                        continue
+                    curr_id = subject_id + "-" + str(i + 1)
+                    # with logging_redirect_tqdm():
+                    # try:
+                    process(name=curr_id, bag=bag)
+                    # except KeyboardInterrupt:
+                    #     raise typer.Exit()
+                    # except Exception as e:
+                    #     raise e
+    except Exception as e:
+        rospy.logerr(f"Exp: {e}")
+        raise typer.Exit()
+        # return
 
 
 if __name__ == "__main__":
