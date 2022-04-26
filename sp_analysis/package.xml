@@ -1,0 +1,15 @@
+<package format="2">
+    <name>sp_analysis</name>
+    <version>0.0.0</version>
+    <description>Pedestian analysis</description>
+    <author>Yuxiang Gao</author>
+    <maintainer email="yuxiang.gao@jhu.edu">Yuxiang Gao</maintainer>
+
+    <license>MIT</license>
+
+    <buildtool_depend>catkin</buildtool_depend>
+    <depend>rosbag</depend>
+    <depend>rospy</depend>
+    <test_depend>roslint</test_depend>
+
+</package>
