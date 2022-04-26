@@ -32,27 +32,20 @@ def process(name: str, bag: str, speed: float = 1):
     bag = None
 
     try:
-        bag = rosbag.Bag(bagfn)
-        for topic, msg, t in bag.read_messages():
-            if topic not in pubs:
-                pub = rospy.Publisher(
-                    topic, type(msg), queue_size=10, latch=("map" in topic)
-                )
-                pubs[topic] = pub
+        with rosbag.Bag(bagfn) as bag:
+            for topic, msg, t in bag.read_messages():
+                if topic not in pubs:
+                    pub = rospy.Publisher(
+                        topic, type(msg), queue_size=10, latch=("map" in topic)
+                    )
+                    pubs[topic] = pub
 
-            if t != last:
-                # t = rospy.Time.from_sec(t.to_sec() / speed)  # speed up 4x
-                data.append((t, []))
-                last = t
-            data[-1][1].append((topic, msg))
-    # except KeyboardInterrupt:
-    #     rospy.logerr("Keyboard Interrupted")
-    #     if bag is not None:
-    #         bag.close()
-    #     raise typer.Exit()
+                if t != last:
+                    # t = rospy.Time.from_sec(t.to_sec() / speed)  # speed up 4x
+                    data.append((t, []))
+                    last = t
+                data[-1][1].append((topic, msg))
     except Exception as e:
-        if bag is not None:
-            bag.close()
         rospy.logerr(f"Exp: {e} for {bagfn}")
         # raise e
         return
@@ -94,7 +87,6 @@ def process(name: str, bag: str, speed: float = 1):
 
         rospy.sleep(loop_sleep)
     vt.on_exit()
-    bag.close()
 
 
 @app.command()
