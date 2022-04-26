@@ -8,12 +8,14 @@ from datetime import datetime
 from pathlib import Path
 
 import numpy as np
+import ros_numpy as rnp
 import rospy
 from black import out
 from easy_markers.generator import Marker, MarkerGenerator
 from geometry_msgs.msg import Point, Vector3
 from kalman_filter import Kalman
 from people_msgs.msg import People, Person, PositionMeasurementArray
+from sensor_msgs.msg import PointCloud2
 
 from human_traj_analysis import PeakAnalysis
 
@@ -56,6 +58,14 @@ gen = MarkerGenerator()
 gen.type = Marker.ARROW
 gen.ns = "velocities"
 gen.lifetime = 0.5
+
+
+p_gen = MarkerGenerator()
+p_gen.type = Marker.SPHERE
+p_gen.frame_id = "base_link"
+p_gen.lifetime = 0.5
+p_gen.scale = [0.1, 0.1, 0.1]
+p_gen.ns = "center"
 
 
 class PersonEstimate(object):
@@ -136,6 +146,43 @@ class PersonEstimate(object):
         )
 
 
+class AverageTracker(object):
+    def __init__(self, name: str = "000000"):
+        self.name = name
+        rospy.Subscriber("/people_cloud", PointCloud2, self.callback)
+        self.marker_pub = rospy.Publisher(
+            "/visualization_marker", Marker, queue_size=10
+        )
+
+        self.trajectory = []
+
+    def callback(self, msg):
+        # print(msg.header.stamp)
+        data = rnp.point_cloud2.pointcloud2_to_xyz_array(msg)
+        if data.shape[0] > 10:
+            position = np.mean(data, axis=0)
+            if position[0] <= 1.5:
+
+                p_gen.counter = 0
+                m = p_gen.marker(position=position)
+                m.header = msg.header
+                self.marker_pub.publish(m)
+
+                self.trajectory.append(
+                    [msg.header.stamp.to_nsec(), position[0], position[1]]
+                )
+
+    def dump(self, filename):
+        with open(str(filename) + "_traj.json", "w") as fp:
+            json.dump(self.trajectory, fp, indent=4)
+
+    def on_exit(self):
+        output_dir = (
+            Path.home() / "catkin_ws" / "average_results" / f"{self.name}"
+        )
+        self.dump(output_dir)
+
+
 class VelocityTracker(object):
     def __init__(self, plot=True):
         self.plot = plot
@@ -164,13 +211,7 @@ class VelocityTracker(object):
     def spin(self):
         rate = rospy.Rate(10)
         while not rospy.is_shutdown():
-            # Remove People Older Than timeout param
-            now = rospy.Time.now()
-            for pid in list(self.people):
-                if now - self.people[pid].timestamp > self.TIMEOUT:
-                    del self.people[pid]
-            self.publish()
-            self.record()
+            self.spin_once()
             rate.sleep()
 
         self.on_exit()
