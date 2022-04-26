@@ -10,7 +10,7 @@ import typer
 from tqdm.contrib.logging import logging_redirect_tqdm
 
 from human_traj_analysis import PeakAnalysis
-from leg_recorder import VelocityTracker
+from tracking import AverageTracker, VelocityTracker
 
 app = typer.Typer()
 
@@ -52,8 +52,9 @@ def process(name: str, bag: str, speed: float = 1):
 
     rospy.loginfo("Done read")
 
-    vt = VelocityTracker(plot=False)
-    vt.name = name
+    # velocity_tracker = VelocityTracker(plot=False)
+    # velocity_tracker.name = name
+    average_tracker = AverageTracker(name)
 
     start = rospy.Time.now()
     sim_start = None
@@ -80,13 +81,14 @@ def process(name: str, bag: str, speed: float = 1):
                 pub.publish(msg)
             if rospy.is_shutdown():
                 break
-            vt.spin_once()
+            # velocity_tracker.spin_once()
         if not should_loop:
             # rospy.signal_shutdown("rospy shutdown")
             break
 
         rospy.sleep(loop_sleep)
-    vt.on_exit()
+    # velocity_tracker.on_exit()
+    average_tracker.on_exit()
 
 
 @app.command()
