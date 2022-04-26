@@ -107,7 +107,7 @@ def from_json(file: str):
     with open(file, "rb") as fp:
         trajectory = json.load(fp)
     print(f"Saving {Path(file).stem} to {Path(file).parent}")
-    print(trajectory)
+    # print(trajectory)
     t, dist, peaks = PeakAnalysis(
         trajectory,
         output_dir=Path(file).parent,
