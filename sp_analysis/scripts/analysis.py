@@ -16,7 +16,7 @@ app = typer.Typer()
 
 
 def process(name: str, bag: str, speed: float = 1):
-    rospy.init_node("play_and_record")
+    rospy.init_node("play_and_record", log_level=rospy.DEBUG)
     bagfn = bag
     should_loop = False
     loop_sleep = 0.1
@@ -159,9 +159,9 @@ def batch(folder: str, start_from: str = None, user_id: str = None):
                     continue
 
                 curr_id = subject_id + "-" + str(i + 1)
-                # with logging_redirect_tqdm():
-                # try:
-                process(name=curr_id, bag=bag)
+                with logging_redirect_tqdm():
+                    # try:
+                    process(name=curr_id, bag=bag)
                 # except KeyboardInterrupt:
                 #     raise typer.Exit()
                 # except Exception as e:
