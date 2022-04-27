@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 import os
-import pickle
 from contextlib import closing
 from io import BytesIO
-from pathlib import Path
 
 import boto3
 import pyttsx3
@@ -14,84 +12,16 @@ from pydub.playback import play
 from sp_msgs.srv import Speech, SpeechResponse
 from std_srvs.srv import SetBool, SetBoolRequest
 
-# from TTS.utils.manage import ModelManager
-# from TTS.utils.synthesizer import Synthesizer
-
-# def speak(text):
-#     from gtts import gTTS
-
-#     tts = gTTS(text=text, lang="en")
-
-#     filename = "tts_output.mp3"
-#     tts.save(filename)
-#     play_and_delete(filename)
-
-
-# def make_synthesizer():
-#     model_name = "tts_models/en/ljspeech/tacotron2-DDC"
-#     path = Path(__file__).parent / "../.models.json"
-#     manager = ModelManager(path)
-#     model_path, config_path, model_item = manager.download_model(model_name)
-#     vocoder_name = model_item["default_vocoder"]
-#     vocoder_path, vocoder_config_path, _ = manager.download_model(vocoder_name)
-#     # load models
-#     synthesizer = Synthesizer(
-#         model_path,
-#         config_path,
-#         tts_speakers_file=None,
-#         tts_languages_file=None,
-#         vocoder_checkpoint=vocoder_path,
-#         vocoder_config=vocoder_config_path,
-#         encoder_checkpoint=None,
-#         encoder_config=None,
-#         use_cuda=False,
-#     )
-#     return synthesizer
-
 
 class SpeechSynthesizer(object):
-    # synthesizer = make_synthesizer()
     engine = pyttsx3.init()
-    polly = boto3.Session(
-        aws_access_key_id="AKIARFZCCUNFW5Y2JQ5P",
-        aws_secret_access_key="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",
-        region_name="us-east-1",
-    ).client("polly")
+    # secrets are stored in ~/.aws/credentials
+    polly = boto3.Session().client("polly")
     buffer = {}
 
     def __init__(self):
-        # self.out_path = "/home/hello-robot/catkin_ws/tts_output.wav"
-        # self.buffer_path = Path(__file__).parent / "../buffer.pickle"
-        # # self.voice_thread = Thread(target=self.play_and_delete)
-
-        # # load buffer
-        # if SpeechSynthesizer.buffer == {} and self.buffer_path.is_file():
-        #     with open(self.buffer_path, "rb") as handle:
-        #         SpeechSynthesizer.buffer = pickle.load(handle)
-        # # print(SpeechSynthesizer.buffer.keys())
-
         SpeechSynthesizer.engine.setProperty("volume", 1.0)
         SpeechSynthesizer.engine.setProperty("rate", 170)
-
-    # def __del__(self):
-    #     with open(self.buffer_path, "wb") as handle:
-    #         pickle.dump(
-    #             SpeechSynthesizer.buffer,
-    #             handle,
-    #             protocol=pickle.HIGHEST_PROTOCOL,
-    #         )
-
-    # def speak(self, text):
-    #     # play = lambda: playsound(self.out_path)
-
-    #     if text in self.buffer:
-    #         wav = SpeechSynthesizer.buffer[text]
-    #     else:
-    #         wav = self.synthesizer.tts(text)
-    #         SpeechSynthesizer.buffer[text] = wav
-    #     SpeechSynthesizer.synthesizer.save_wav(wav, self.out_path)
-    #     playsound(self.out_path, block=True)
-    #     # self.voice_thread.start()
 
     def speak_pyttsx3(self, text):
         SpeechSynthesizer.engine.stop()
