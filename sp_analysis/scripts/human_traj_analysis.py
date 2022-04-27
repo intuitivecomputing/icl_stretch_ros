@@ -60,8 +60,8 @@ def find_closest_dist(data: np.ndarray):
     t = data[:, 0]
     x = data[:, 1]
     y = data[:, 2]
-    vel_x = data[:, 3]
-    vel_y = data[:, 4]
+    # vel_x = data[:, 3]
+    # vel_y = data[:, 4]
     dist = np.sqrt(data[:, 1] ** 2 + data[:, 2] ** 2)
     angle = np.rad2deg(np.arctan2(data[:, 2], data[:, 1]))
     # find closest dist
