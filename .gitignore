@@ -75,3 +75,4 @@ CATKIN_IGNORE
 .nfs*
 
 FlexBE
+sp_analysis/scripts/plot.py
