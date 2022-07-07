@@ -74,4 +74,4 @@ CATKIN_IGNORE
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-FlexBE
+.python-version

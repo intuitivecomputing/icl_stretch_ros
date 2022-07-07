@@ -17,8 +17,6 @@ from kalman_filter import Kalman
 from people_msgs.msg import People, Person, PositionMeasurementArray
 from sensor_msgs.msg import PointCloud2
 
-from human_traj_analysis import PeakAnalysis
-
 
 def distance(leg1, leg2):
     return math.sqrt(
@@ -231,12 +229,6 @@ class VelocityTracker(object):
             Path.home() / "catkin_ws" / "study_results" / f"{self.name}"
         )
         self.dump(output_dir)
-        if self.plot:
-            PeakAnalysis(
-                self.trajectory,
-                output_dir=Path.home() / "catkin_ws" / "study_results",
-                filename=self.name,
-            )
 
     def dump(self, filename):
         with open(str(filename) + ".json", "w") as fp:

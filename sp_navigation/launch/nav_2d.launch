@@ -3,7 +3,7 @@
   The nodes needed for navigation are map_server, octomap_server, amcl, and move_base.-->
 
     <!-- Map name -->
-    <arg name="map" default="map_239" />
+    <arg name="map" default="map_239_2" />
     <!-- Move_base configuration folder. -->
     <arg name="move_base_config" value="2d" />
 

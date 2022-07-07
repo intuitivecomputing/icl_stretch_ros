@@ -46,16 +46,18 @@ class StateMachineNode(hm.HelloNode):
         self.wrist_position = None
         self.lift_position = None
 
-        self.shelf_goal = (
-            [1.1, -0.707, 0.0],
-            -1.57,
-        )  # ([-0.05, -0.2, 0.0], 0.0)
+        self.shelf_goal = ([0, 0, 0], 0.0)
+        # self.shelf_goal = (
+        #     [1.1, -0.707, 0.0],
+        #     -1.57,
+        # )  # ([-0.05, -0.2, 0.0], 0.0)
         # self.workstation_goal = (
         #     [4.7, -0.05, 0.0],
         #     -1.57,
         # )  # ([1.3, 2.4, 0.0], 1.57)
-        self.workstation_goal = ([4.55, -0.1, 0.0], 3.14)
-        self.marker_list = [80]
+        # self.workstation_goal = ([4.55, -0.1, 0.0], 3.14)
+        self.workstation_goal = ([-0.64, 3.36, 0], 0.0)
+        self.marker_list = [83]
         self.is_start = True
 
         self.vis_marker_array = MarkerArray()
@@ -480,8 +482,8 @@ class StateMachineNode(hm.HelloNode):
 
         # sm = self.detect_debug_fsm()
         # sm = self.grasp_fsm()
-        # sm = self.generate_fsm()
-        sm = self.test_fsm()
+        sm = self.generate_fsm()
+        # sm = self.test_fsm()
 
         sis = IntrospectionServer("state_machine", sm, "/state_machine")
         sis.start()

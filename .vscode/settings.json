@@ -6,5 +6,10 @@
     "python.analysis.extraPaths": [
         "/home/hello-robot/catkin_ws/devel/lib/python2.7/dist-packages",
         "/opt/ros/melodic/lib/python2.7/dist-packages"
-    ]
+    ],
+    "cSpell.enableFiletypes": [
+        "!cython"
+    ],
+    "python.linting.pylintEnabled": true,
+    "python.linting.enabled": true
 }
