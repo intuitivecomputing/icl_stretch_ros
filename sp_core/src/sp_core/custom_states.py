@@ -444,9 +444,9 @@ class MagnetState(smach.State):
 
         grasp_center_frame = "link_magnet"
         base_frame = "base_link"
-        wrist_extension_offset_m = 0.02  # 0.025
-        forward_offset_m = 0.02
-        lift_offset_m = 0.02
+        wrist_extension_offset_m = 0.02  # 0.025 # calibrate this
+        forward_offset_m = 0.02  # calibrate this
+        lift_offset_m = 0.02  # calibrate this
 
         target_to_base_mat = self.node.lookup_transform_mat(
             base_frame,
@@ -511,7 +511,7 @@ class PostMagnetState(smach.State):
 
     def execute(self, userdata):
         rospy.sleep(1.0)
-        post_grasp_lift_m = 0.015
+        post_grasp_lift_m = 0.015  # calibrate this
         pose = {"joint_lift": self.node.lift_position + post_grasp_lift_m}
         self.node.move_to_pose(pose)
         rospy.sleep(1.0)
