@@ -15,7 +15,7 @@ from tracking import AverageTracker, VelocityTracker
 app = typer.Typer()
 
 
-def process(name: str, bag: str, speed: float = 1):
+def process(name: str, bag: str, speed: float = 1, start_time: float = 0):
     rospy.init_node("play_and_record", log_level=rospy.DEBUG)
     bagfn = bag
     should_loop = False
@@ -30,6 +30,7 @@ def process(name: str, bag: str, speed: float = 1):
     last = None
     data = []
     bag = None
+    start = None
 
     try:
         with rosbag.Bag(bagfn) as bag:
@@ -40,6 +41,15 @@ def process(name: str, bag: str, speed: float = 1):
                     )
                     pubs[topic] = pub
 
+                if start is None:
+                    start = t
+                if start_time != 0:
+                    time_passed = t - start
+                    print(f"Skipped:{time_passed.secs}s")
+                    if time_passed.secs <= start_time:
+                        continue
+                    else:
+                        start_time = 0
                 if t != last:
                     # t = rospy.Time.from_sec(t.to_sec() / speed)  # speed up 4x
                     data.append((t, []))
@@ -92,8 +102,8 @@ def process(name: str, bag: str, speed: float = 1):
 
 
 @app.command()
-def main(name: str, bag: str, speed: float = 1):
-    process(name, bag, speed=speed)
+def main(name: str, bag: str, speed: float = 1, start_time: float = 0):
+    process(name, bag, speed=speed, start_time=start_time)
 
 
 @app.command()
