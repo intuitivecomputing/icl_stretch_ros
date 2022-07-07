@@ -9,7 +9,7 @@ import tqdm
 import typer
 from tqdm.contrib.logging import logging_redirect_tqdm
 
-from .tracking import AverageTracker, VelocityTracker
+from tracking import AverageTracker, VelocityTracker
 
 app = typer.Typer()
 
