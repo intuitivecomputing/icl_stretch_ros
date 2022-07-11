@@ -1,0 +1,173 @@
+﻿Open( "/Users/yxgao/Downloads/Analysis/Results.jmp" );
+Fit Group(
+	Fit Model(
+		Y( :"GS: Anthro"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"GS: Anthro"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			{:"Embodiment (B)"n * :"Task (W)"n <<
+			{Least Squares Means Plot( Overlay Term List( "Embodiment (B)"n ) )}}}
+		),
+		SendToReport(
+			Dispatch(
+				{"Response GS: Anthro"},
+				"Effect Details",
+				OutlineBox,
+				{Close( 0 )}
+			)
+		)
+	),
+	Fit Model(
+		Y( :"GS: Animacy"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"GS: Animacy"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			{:"Task (W)"n << {Least Squares Means Plot}, :"Embodiment (B)"n *
+			:"Task (W)"n << {Least Squares Means Plot(
+				Overlay Term List( "Embodiment (B)"n )
+			)}}}
+		),
+		SendToReport(
+			Dispatch(
+				{"Response GS: Animacy"},
+				"Effect Details",
+				OutlineBox,
+				{Close( 0 )}
+			),
+			Dispatch(
+				{"Response GS: Animacy", "Effect Details", "Task (W)",
+				"Least Squares Means Plot"},
+				"Least Squares Means Plot",
+				FrameBox,
+				{DispatchSeg(
+					BarSeg( 1 ),
+					{Line Color( "Red" ), Line Width( 2 ), Error Bar Cap( "Small" )}
+				)}
+			)
+		)
+	),
+	Fit Model(
+		Y( :"GS: Likeability"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"GS: Likeability"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			{:"Embodiment (B)"n << {Least Squares Means Plot}, :"Embodiment (B)"n *
+			:"Task (W)"n << {Least Squares Means Plot(
+				Overlay Term List( "Embodiment (B)"n )
+			)}}}
+		),
+		SendToReport(
+			Dispatch(
+				{"Response GS: Likeability"},
+				"Effect Details",
+				OutlineBox,
+				{Close( 0 )}
+			),
+			Dispatch(
+				{"Response GS: Likeability", "Effect Details", "Embodiment (B)",
+				"Least Squares Means Plot"},
+				"Least Squares Means Plot",
+				FrameBox,
+				{DispatchSeg(
+					BarSeg( 1 ),
+					{Line Color( "Red" ), Line Width( 2 ), Error Bar Cap( "Small" )}
+				)}
+			)
+		)
+	),
+	Fit Model(
+		Y( :"GS: PI"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"GS: PI"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			{:"Task (W)"n << {Least Squares Means Plot}, :"Embodiment (B)"n *
+			:"Task (W)"n << {Least Squares Means Plot(
+				Overlay Term List( "Embodiment (B)"n )
+			)}}}
+		),
+		SendToReport(
+			Dispatch(
+				{"Response GS: PI"},
+				"Effect Details",
+				OutlineBox,
+				{Close( 0 )}
+			),
+			Dispatch(
+				{"Response GS: PI", "Effect Details", "Task (W)",
+				"Least Squares Means Plot"},
+				"Least Squares Means Plot",
+				FrameBox,
+				{DispatchSeg(
+					BarSeg( 1 ),
+					{Line Color( "Red" ), Line Width( 2 ), Error Bar Cap( "Small" )}
+				)}
+			),
+			Dispatch(
+				{"Response GS: PI", "Effect Details"},
+				"ID[Embodiment (B)]",
+				OutlineBox,
+				{Close( 1 )}
+			),
+			Dispatch(
+				{"Response GS: PI", "Effect Details", "ID[Embodiment (B)]"},
+				"Least Squares Means Table",
+				OutlineBox,
+				{Close( 0 )}
+			)
+		)
+	),
+	<<{Arrange in Rows( 100 )},
+	Automatic Recalc( 1 )
+);

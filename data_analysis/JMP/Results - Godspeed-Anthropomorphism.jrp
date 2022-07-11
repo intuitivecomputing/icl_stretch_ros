@@ -1,0 +1,112 @@
+Open( "Results.jmp" );
+Fit Group(
+	Fit Model(
+		Y( :"Fake-Natural"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Fake-Natural"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Machinelike-Humanlike"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Machinelike-Humanlike"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Unconsious-Conscious"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Unconsious-Conscious"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Artificial-Lifelike"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Artificial-Lifelike"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Rigid-Elegant"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Rigid-Elegant"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	<<{Arrange in Rows( 100 )}
+);

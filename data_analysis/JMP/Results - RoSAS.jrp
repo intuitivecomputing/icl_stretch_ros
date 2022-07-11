@@ -1,0 +1,184 @@
+﻿Open( "/Users/yxgao/Downloads/Analysis/Results.jmp" );
+Fit Group(
+	Fit Model(
+		Y( :Happy ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Happy << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Social ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Social << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Emotional ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Emotional << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Capable ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Capable << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Responsive ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Responsive << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Interactive ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Interactive << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Reliable ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Reliable << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Competent ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Competent << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	Fit Model(
+		Y( :Knowledgeable ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:Knowledgeable << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		)
+	),
+	<<{Arrange in Rows( 100 )}
+);

@@ -1,0 +1,10 @@
+Open( "Results.jmp" );
+Distribution(
+	Continuous Distribution( Column( :"ROSAS: Warmth"n ) ),
+	Continuous Distribution( Column( :"ROSAS: Competence"n ) ),
+	Continuous Distribution( Column( :"GS: Anthro"n ) ),
+	Continuous Distribution( Column( :"GS: Animacy"n ) ),
+	Continuous Distribution( Column( :"GS: Likeability"n ) ),
+	Continuous Distribution( Column( :"GS: PI"n ) ),
+	By( :"Task (W)"n )
+);

@@ -1,0 +1,351 @@
+﻿Open( "/Users/yxgao/Downloads/Analysis/Results.jmp" );
+Multivariate(
+	Y(
+		:Extraversion, :Agreeableness, :Conscientiousness, :Emotional Stability,
+		:Openness, :"ROSAS: Warmth"n, :"ROSAS: Competence"n, :"GS: Anthro"n,
+		:"GS: Animacy"n, :"GS: Likeability"n, :"GS: PI"n
+	),
+	Estimation Method( "Row-wise" ),
+	Scatterplot Matrix( Density Ellipses( 1 ), Significance Circles( 1 ) ),
+	Partial Correlations( 1 ),
+	Pairwise Correlations( 1 ),
+	SendToReport(
+		Dispatch( {}, "Partial Corr", OutlineBox, {Close( 1 )} ),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 12 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 23 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 24 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 34 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 35 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 36 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 45 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 46 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 47 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 48 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 56 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 57 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 58 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 59 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 60 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 67 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 68 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 69 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 70 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 71 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 72 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 78 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 79 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 80 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 81 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 82 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 83 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 84 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 89 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 90 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 91 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 92 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 93 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 94 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 95 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 96 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 100 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 101 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 102 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 103 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 104 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 105 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 106 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 107 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 108 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 111 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 112 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 113 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 114 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 115 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 116 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 117 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 118 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 119 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Scatterplot Matrix"},
+			"Multiv Scatter Plot",
+			FrameBox( 120 ),
+			{Marker Drawing Mode( "Normal" )}
+		),
+		Dispatch(
+			{"Pairwise Correlations"},
+			"",
+			TableBox,
+			{Sort By Column( 7, 1 )}
+		)
+	)
+);

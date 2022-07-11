@@ -1,0 +1,113 @@
+Open( "Results.jmp" );
+Fit Group(
+	Fit Model(
+		Y( :"Incompetent-Competent"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Incompetent-Competent"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Ignorant-Knowledgeable"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Ignorant-Knowledgeable"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Irresponsible-Responsible"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Irresponsible-Responsible"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Unintelligent-Intelligent"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Unintelligent-Intelligent"n << {Summary of Fit( 1 ),
+			Analysis of Variance( 0 ), Parameter Estimates( 1 ),
+			Scaled Estimates( 0 ), Plot Actual by Predicted( 0 ),
+			Plot Regression( 0 ), Plot Residual by Predicted( 0 ),
+			Plot Studentized Residuals( 0 ), Plot Effect Leverage( 0 ),
+			Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	Fit Model(
+		Y( :"Foolish-Sensible"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"Foolish-Sensible"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+		),
+		SendToReport( Dispatch( {}, "", OwnerBox, {Vertical Alignment( "Top" )} ) )
+	),
+	<<{Arrange in Rows( 100 )}
+);

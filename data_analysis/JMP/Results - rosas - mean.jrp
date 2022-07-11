@@ -1,0 +1,83 @@
+﻿Open( "/Users/yxgao/Downloads/Analysis/Results.jmp" );
+Fit Group(
+	Fit Model(
+		Y( :"ROSAS: Warmth"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"ROSAS: Warmth"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			{:"Embodiment (B)"n << {Least Squares Means Plot}, :"Embodiment (B)"n *
+			:"Task (W)"n << {Least Squares Means Plot(
+				Overlay Term List( "Embodiment (B)"n )
+			)}}}
+		),
+		SendToReport(
+			Dispatch(
+				{"Response ROSAS: Warmth", "REML Variance Component Estimates"},
+				"Covariance Matrix of Variance Component Estimates",
+				OutlineBox,
+				{Close( 0 )}
+			),
+			Dispatch(
+				{"Response ROSAS: Warmth"},
+				"Effect Details",
+				OutlineBox,
+				{Close( 0 )}
+			),
+			Dispatch(
+				{"Response ROSAS: Warmth", "Effect Details", "Embodiment (B)",
+				"Least Squares Means Plot"},
+				"Least Squares Means Plot",
+				FrameBox,
+				{DispatchSeg(
+					BarSeg( 1 ),
+					{Line Color( "Red" ), Line Width( 2 ), Error Bar Cap( "Small" )}
+				)}
+			)
+		)
+	),
+	Fit Model(
+		Y( :"ROSAS: Competence"n ),
+		Effects(
+			:"Embodiment (B)"n, :"Task (W)"n, :"Embodiment (B)"n * :"Task (W)"n
+		),
+		Random Effects(
+			:ID[:"Embodiment (B)"n], :ID * :"Task (W)"n[:"Embodiment (B)"n]
+		),
+		NoBounds( 1 ),
+		Personality( "Standard Least Squares" ),
+		Method( "REML" ),
+		Emphasis( "Minimal Report" ),
+		Run(
+			:"ROSAS: Competence"n << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+			Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+			Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			{:"Embodiment (B)"n * :"Task (W)"n <<
+			{Least Squares Means Plot( Overlay Term List( "Embodiment (B)"n ) )}}}
+		),
+		SendToReport(
+			Dispatch(
+				{"Response ROSAS: Competence"},
+				"Effect Details",
+				OutlineBox,
+				{Close( 0 )}
+			)
+		)
+	),
+	<<{Arrange in Rows( 5 )},
+	Automatic Recalc( 1 )
+);

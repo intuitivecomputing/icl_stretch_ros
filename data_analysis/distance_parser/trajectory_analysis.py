@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from scipy.signal import find_peaks
 
-from .plot_helpers import annotates, canvas
+from plot_helpers import annotates, canvas
 
 LOG = logging.getLogger(__name__)
 

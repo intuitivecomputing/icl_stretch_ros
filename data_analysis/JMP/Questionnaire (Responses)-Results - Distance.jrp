@@ -1,0 +1,24 @@
+﻿Open( "/Users/yxgao/Downloads/Analysis/Questionnaire (Responses)-Results.jmp" );
+Fit Model(
+	Y( :Distance ),
+	Effects(
+		:"Embodiment (B)"n, :Gender, :"Task (W)"n, :"Embodiment (B)"n * :Gender,
+		:"Embodiment (B)"n * :"Task (W)"n, :Gender * :"Task (W)"n,
+		:"Embodiment (B)"n * :Gender * :"Task (W)"n
+	),
+	Random Effects(
+		:ID[:"Embodiment (B)"n, :Gender],
+		:ID * :"Task (W)"n[:"Embodiment (B)"n, :Gender]
+	),
+	NoBounds( 1 ),
+	Personality( "Standard Least Squares" ),
+	Method( "REML" ),
+	Emphasis( "Minimal Report" ),
+	Run(
+		:Distance << {Summary of Fit( 1 ), Analysis of Variance( 0 ),
+		Parameter Estimates( 1 ), Scaled Estimates( 0 ),
+		Plot Actual by Predicted( 0 ), Plot Regression( 0 ),
+		Plot Residual by Predicted( 0 ), Plot Studentized Residuals( 0 ),
+		Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 )}
+	)
+);

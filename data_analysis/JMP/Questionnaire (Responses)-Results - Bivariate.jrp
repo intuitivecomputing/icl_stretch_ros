@@ -1,0 +1,121 @@
+﻿Open( "/Users/yxgao/Downloads/Analysis/Questionnaire (Responses)-Results.jmp" );
+New Window( "Questionnaire (Responses)-Results - Bivariate",
+	V List Box(
+		Fit Group(
+			Bivariate(
+				Y( :Distance ),
+				X( :Extraversion ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Agreeableness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Conscientiousness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Emotional Stability ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Openness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			<<{Arrange in Rows( 5 )},
+			Where( :"Condition(S/F,T/N)"n == 0 )
+		),
+		Fit Group(
+			Bivariate(
+				Y( :Distance ),
+				X( :Extraversion ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Agreeableness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Conscientiousness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Emotional Stability ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Openness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			<<{Arrange in Rows( 5 )},
+			Where( :"Condition(S/F,T/N)"n == 1 )
+		),
+		Fit Group(
+			Bivariate(
+				Y( :Distance ),
+				X( :Extraversion ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Agreeableness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Conscientiousness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Emotional Stability ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Openness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			<<{Arrange in Rows( 5 )},
+			Where( :"Condition(S/F,T/N)"n == 10 )
+		),
+		Fit Group(
+			Bivariate(
+				Y( :Distance ),
+				X( :Extraversion ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Agreeableness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Conscientiousness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Emotional Stability ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			Bivariate(
+				Y( :Distance ),
+				X( :Openness ),
+				Fit Line( {Line Color( {212, 73, 88} )} )
+			),
+			<<{Arrange in Rows( 5 )},
+			Where( :"Condition(S/F,T/N)"n == 11 )
+		)
+	)
+);
