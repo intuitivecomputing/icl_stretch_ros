@@ -2,10 +2,10 @@
 import logging
 from pathlib import Path
 
-import attrs
 import matplotlib.dates as mdates
 import numpy as np
 import pandas as pd
+from attrs import define
 from scipy.signal import find_peaks
 
 from plot_helpers import annotates, canvas
@@ -13,7 +13,7 @@ from plot_helpers import annotates, canvas
 LOG = logging.getLogger(__name__)
 
 
-@attrs.define
+@define
 class TrajectoryAnalysis:
     smooth: bool = True
     plot: bool = False
