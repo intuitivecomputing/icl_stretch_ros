@@ -5,7 +5,8 @@
 
 ## Installation
 ```
-git clone https://github.com/intuitivecomputing/icl_stretch_ros.git
+cd catkin_ws/src
+git clone https://github.com/intuitivecomputing/icl_stretch_ros.git sterile_processing
 cd sterile_processing
 % vcs import < dependencies.repos
 catkin_make
